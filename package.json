@@ -5,9 +5,12 @@
   "main": "main.js",
   "scripts": {
     "start": "electron .",
-    "start:cloud": "node server.js",
+    "start:web": "node server.js",
     "build": "electron-builder --win --x64",
     "build-portable": "electron-builder --win portable --x64"
+  },
+  "engines": {
+    "node": ">=18.0.0"
   },
   "build": {
     "appId": "com.payrollpro.app",
@@ -18,9 +21,7 @@
       "target": [
         {
           "target": "nsis",
-          "arch": [
-            "x64"
-          ]
+          "arch": ["x64"]
         }
       ]
     },

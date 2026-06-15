@@ -84,7 +84,7 @@ function loadDB() {
 }
 
 function saveDB(data) {
-  data._updatedAt = new Date().toLocaleString('sv-SE', { timeZone: 'Asia/Bangkok' }).replace(' ', 'T')
+  data._updatedAt = new Date().toISOString()  // UTC เสมอ — client แปลงเป็นเวลาไทยตอนแสดง
   try {
     const tmp = DB_FILE + '.tmp'
     fs.writeFileSync(tmp, JSON.stringify(data, null, 2), 'utf8')
@@ -105,10 +105,11 @@ function getLocalIP() {
 }
 
 // ─── State ───────────────────────────────────────────────────
-let publicUrl = process.env.PUBLIC_URL || null   // ตั้งได้จาก env สำหรับ cloud
+let publicUrl = process.env.PUBLIC_URL || null
 let clientCount = 0
 const localIP = getLocalIP()
-let PORT = parseInt(process.env.PORT) || 3000
+// Render.com กำหนด PORT=10000 อัตโนมัติ / local fallback เป็น 3000
+let PORT = parseInt(process.env.PORT) || 10000
 
 // ─── REST API ────────────────────────────────────────────────
 app.get('/api/data', (req, res) => res.json(loadDB()))
@@ -220,9 +221,10 @@ function startServer(port) {
   })
 }
 
-// Cloud: PORT กำหนดโดย platform → ใช้ตรงๆ ไม่ต้อง retry
-// Local: เริ่มที่ 3000 และ retry อัตโนมัติถ้า port ถูกใช้
-startServer(PORT).catch(err => {
+// Cloud (Render/Railway): PORT กำหนดโดย platform → ใช้ตรงๆ ไม่ต้อง retry
+// Local (Electron/dev) : เริ่มที่ 10000 และ retry อัตโนมัติถ้า port ถูกใช้
+const startPort = IS_CLOUD ? PORT : (parseInt(process.env.PORT) || 3000)
+startServer(startPort).catch(err => {
   console.error('[Server] เริ่มไม่ได้:', err.message)
   _rejectPort(err)
 })

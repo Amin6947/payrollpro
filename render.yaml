@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: payrollpro
+    env: node
+    buildCommand: npm install --omit=dev
+    startCommand: node server.js
+    healthCheckPath: /api/data
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATA_DIR
+        value: /data
+    disk:
+      name: payrollpro-data
+      mountPath: /data
+      sizeGB: 1
