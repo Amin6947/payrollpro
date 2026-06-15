@@ -1,23 +1,26 @@
-const express = require('express')
-const http    = require('http')
+const express  = require('express')
+const http     = require('http')
 const { Server } = require('socket.io')
-const fs   = require('fs')
-const path = require('path')
-const os   = require('os')
+const mongoose = require('mongoose')
+const path     = require('path')
+const os       = require('os')
 
 const app        = express()
 const httpServer = http.createServer(app)
 const io         = new Server(httpServer, { cors: { origin: '*', methods: ['GET', 'POST'] } })
 
 // ─── Config ──────────────────────────────────────────────────
-const PORT     = parseInt(process.env.PORT)     || 10000
-const DATA_DIR = process.env.DATA_DIR           || __dirname
-const DB_FILE  = path.join(DATA_DIR, 'db.json')
+const PORT      = parseInt(process.env.PORT) || 10000
+const MONGO_URI = process.env.MONGO_URI      || 'mongodb+srv://padchabel_db_user:n5y4b0PViWVLDKol@cluster0.enp6p4e.mongodb.net/payrollpro?retryWrites=true&w=majority&appName=Cluster0'
 
 app.use(express.static(path.join(__dirname)))
 app.use(express.json({ limit: '10mb' }))
 
-// ─── DB ──────────────────────────────────────────────────────
+// ─── MongoDB ─────────────────────────────────────────────────
+const dataSchema = new mongoose.Schema({ _id: String }, { strict: false, versionKey: false })
+const AppData    = mongoose.model('AppData', dataSchema)
+
+// ─── Default Data ────────────────────────────────────────────
 function defaultData() {
   return {
     employees: [
@@ -64,22 +67,23 @@ function defaultData() {
   }
 }
 
-function loadDB() {
-  if (!fs.existsSync(DB_FILE)) { const d = defaultData(); saveDB(d); return d }
-  try { return JSON.parse(fs.readFileSync(DB_FILE, 'utf8')) }
-  catch { console.error('[DB] ไฟล์เสียหาย — ใช้ข้อมูลเริ่มต้น'); const d = defaultData(); saveDB(d); return d }
+// ─── DB Helpers ──────────────────────────────────────────────
+async function loadDB() {
+  const doc = await AppData.findById('main').lean()
+  if (!doc) {
+    const d = defaultData()
+    await saveDB(d)
+    return d
+  }
+  const { _id, ...data } = doc
+  return data
 }
 
-function saveDB(data) {
+async function saveDB(data) {
   data._updatedAt = new Date().toISOString()
-  try {
-    if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true })
-    const tmp = DB_FILE + '.tmp'
-    fs.writeFileSync(tmp, JSON.stringify(data, null, 2), 'utf8')
-    fs.renameSync(tmp, DB_FILE)
-  } catch (e) {
-    console.error('[DB] บันทึกไม่สำเร็จ:', e.message)
-  }
+  const { _id, ...rest } = data
+  await AppData.replaceOne({ _id: 'main' }, { _id: 'main', ...rest }, { upsert: true })
+  return data
 }
 
 // ─── Network ─────────────────────────────────────────────────
@@ -90,41 +94,61 @@ function getLocalIP() {
   return '127.0.0.1'
 }
 const localIP = getLocalIP()
-let publicUrl = process.env.PUBLIC_URL || null
+let publicUrl  = process.env.PUBLIC_URL || null
 let clientCount = 0
 
 // ─── REST API ────────────────────────────────────────────────
-app.get('/api/data',    (_req, res) => res.json(loadDB()))
+app.get('/api/data', async (_req, res) => {
+  try { res.json(await loadDB()) }
+  catch (e) { res.status(500).json({ error: e.message }) }
+})
+
 app.get('/api/network', (_req, res) =>
   res.json({ local: `http://${localIP}:${PORT}`, online: publicUrl, localIP, port: PORT }))
 
-app.post('/api/data', (req, res) => {
-  const data = req.body
-  saveDB(data)
-  io.emit('data:sync', { data, action: 'API update' })
-  res.json({ ok: true, savedAt: data._updatedAt })
+app.post('/api/data', async (req, res) => {
+  try {
+    const data = req.body
+    await saveDB(data)
+    io.emit('data:sync', { data, action: 'API update' })
+    res.json({ ok: true, savedAt: data._updatedAt })
+  } catch (e) {
+    res.status(500).json({ error: e.message })
+  }
 })
 
 // ─── Socket.IO ───────────────────────────────────────────────
-io.on('connection', (socket) => {
+io.on('connection', async (socket) => {
   clientCount++
   console.log(`[+] ${socket.id} (${clientCount} อุปกรณ์)`)
 
-  socket.emit('data:init', loadDB())
+  try {
+    socket.emit('data:init', await loadDB())
+  } catch (e) {
+    console.error('[DB] load error:', e.message)
+  }
   socket.emit('network:info', { local: `http://${localIP}:${PORT}`, online: publicUrl, localIP, port: PORT })
   io.emit('clients:count', clientCount)
 
-  socket.on('data:update', ({ data, action }) => {
-    saveDB(data)
-    socket.broadcast.emit('data:sync', { data, action })
-    socket.emit('data:saved', { action, savedAt: data._updatedAt })
-    console.log(`[DB] ${action}`)
+  socket.on('data:update', async ({ data, action }) => {
+    try {
+      await saveDB(data)
+      socket.broadcast.emit('data:sync', { data, action })
+      socket.emit('data:saved', { action, savedAt: data._updatedAt })
+      console.log(`[DB] ${action}`)
+    } catch (e) {
+      console.error('[DB] save error:', e.message)
+    }
   })
 
-  socket.on('request:refresh', () => {
-    const fresh = loadDB()
-    socket.emit('data:init', fresh)
-    socket.emit('data:saved', { action: 'refresh', savedAt: fresh._updatedAt })
+  socket.on('request:refresh', async () => {
+    try {
+      const fresh = await loadDB()
+      socket.emit('data:init', fresh)
+      socket.emit('data:saved', { action: 'refresh', savedAt: fresh._updatedAt })
+    } catch (e) {
+      console.error('[DB] refresh error:', e.message)
+    }
   })
 
   socket.on('disconnect', () => {
@@ -135,12 +159,19 @@ io.on('connection', (socket) => {
 })
 
 // ─── Start ───────────────────────────────────────────────────
-httpServer.listen(PORT, '0.0.0.0', async () => {
+async function main() {
+  console.log('🔌 กำลังเชื่อมต่อ MongoDB...')
+  await mongoose.connect(MONGO_URI)
+  console.log('✅ MongoDB Connected')
+
+  await new Promise((resolve) => {
+    httpServer.listen(PORT, '0.0.0.0', resolve)
+  })
+
   console.log(`\n✅ PayrollPro Web Server`)
   console.log(`   http://localhost:${PORT}`)
   console.log(`   http://${localIP}:${PORT}`)
 
-  // ไม่เปิด localtunnel บน cloud (มี domain ของ Render อยู่แล้ว)
   if (process.env.NODE_ENV === 'production') return
 
   try {
@@ -154,9 +185,14 @@ httpServer.listen(PORT, '0.0.0.0', async () => {
   } catch {
     console.log('   (no tunnel)')
   }
+}
+
+main().catch(e => {
+  console.error('❌ Startup failed:', e.message)
+  process.exit(1)
 })
 
-// ส่งออก portReady สำหรับ Electron main.js (ใช้เมื่อรันผ่าน electron .)
+// ส่งออก portReady สำหรับ Electron main.js
 let _res, _rej
 const portReady = new Promise((r, j) => { _res = r; _rej = j })
 httpServer.once('listening', () => _res(PORT))

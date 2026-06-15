@@ -18,7 +18,14 @@
     "copyright": "Copyright © 2025",
     "win": {
       "icon": "icon.ico",
-      "target": [{ "target": "nsis", "arch": ["x64"] }]
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ]
     },
     "nsis": {
       "oneClick": false,
@@ -28,8 +35,12 @@
       "shortcutName": "PayrollPro"
     },
     "files": [
-      "main.js", "server.js", "index.html",
-      "payroll.html", "preload.js", "node_modules/**/*"
+      "main.js",
+      "server.js",
+      "index.html",
+      "payroll.html",
+      "preload.js",
+      "node_modules/**/*"
     ]
   },
   "devDependencies": {
@@ -39,6 +50,7 @@
   "dependencies": {
     "express": "^5.2.1",
     "localtunnel": "^2.0.2",
+    "mongoose": "^8.24.0",
     "socket.io": "^4.8.3"
   }
 }

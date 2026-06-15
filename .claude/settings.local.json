@@ -26,7 +26,8 @@
       "Bash(node *)",
       "Bash(git init *)",
       "Bash(git add *)",
-      "Bash(git commit *)"
+      "Bash(git commit *)",
+      "PowerShell(cd \"C:\\\\Users\\\\VICTUS\\\\Desktop\\\\A02\"; $proc = Start-Process -FilePath \"node\" -ArgumentList \"server.js\" -PassThru -NoNewWindow -RedirectStandardOutput \"out.txt\" -RedirectStandardError \"err.txt\"; Start-Sleep -Seconds 6; Get-Content out.txt -ErrorAction SilentlyContinue; Get-Content err.txt -ErrorAction SilentlyContinue; $proc.Kill\\(\\))"
     ]
   }
 }
