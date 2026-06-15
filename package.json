@@ -1,0 +1,52 @@
+{
+  "name": "payrollpro",
+  "version": "1.0.0",
+  "description": "ระบบบริหารเงินเดือน PayrollPro",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "start:cloud": "node server.js",
+    "build": "electron-builder --win --x64",
+    "build-portable": "electron-builder --win portable --x64"
+  },
+  "build": {
+    "appId": "com.payrollpro.app",
+    "productName": "PayrollPro",
+    "copyright": "Copyright © 2025",
+    "win": {
+      "icon": "icon.ico",
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "PayrollPro"
+    },
+    "files": [
+      "main.js",
+      "server.js",
+      "index.html",
+      "payroll.html",
+      "preload.js",
+      "node_modules/**/*"
+    ]
+  },
+  "devDependencies": {
+    "electron": "^28.3.3",
+    "electron-builder": "^24.13.3"
+  },
+  "dependencies": {
+    "express": "^5.2.1",
+    "localtunnel": "^2.0.2",
+    "socket.io": "^4.8.3"
+  }
+}

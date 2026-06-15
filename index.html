@@ -1,0 +1,1714 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PayrollPro — ระบบบริหารเงินเดือน</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="/socket.io/socket.io.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Sarabun',sans-serif;background:#f0f2f8;color:#1e293b;display:flex;height:100vh;overflow:hidden}
+
+/* ── Sidebar ── */
+#sidebar{width:260px;min-width:260px;background:linear-gradient(180deg,#1e1b4b 0%,#312e81 50%,#0f0c29 100%);display:flex;flex-direction:column;height:100vh;overflow-y:auto;overflow-x:hidden}
+.sb-logo{padding:24px 20px 16px;border-bottom:1px solid rgba(255,255,255,.1)}
+.sb-logo-title{font-size:22px;font-weight:800;color:#fff;letter-spacing:.5px}
+.sb-logo-sub{font-size:11px;color:rgba(255,255,255,.5);margin-top:2px}
+.sb-section{padding:8px 12px 4px;font-size:10px;font-weight:700;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:1.5px;margin-top:8px}
+.sb-item{display:flex;align-items:center;gap:10px;padding:11px 16px;margin:2px 8px;border-radius:10px;cursor:pointer;color:rgba(255,255,255,.65);font-size:14px;font-weight:500;transition:all .2s}
+.sb-item:hover{background:rgba(255,255,255,.1);color:#fff}
+.sb-item.active{background:linear-gradient(135deg,#4f46e5,#7c3aed);color:#fff;box-shadow:0 4px 12px rgba(79,70,229,.4)}
+.sb-item svg{width:18px;height:18px;flex-shrink:0;opacity:.8}
+.sb-item.active svg{opacity:1}
+.sb-footer{margin-top:auto;padding:16px 20px;border-top:1px solid rgba(255,255,255,.1);font-size:12px;color:rgba(255,255,255,.35);text-align:center}
+
+/* ── Main ── */
+#main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+
+/* ── Header ── */
+#header{background:#fff;border-bottom:1px solid #e2e8f0;padding:0 24px;height:64px;display:flex;align-items:center;gap:12px;flex-shrink:0;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+#page-title{flex:1}
+#page-title h1{font-size:18px;font-weight:700;color:#1e293b}
+#page-title p{font-size:12px;color:#94a3b8;margin-top:1px}
+.hdr-btn{display:flex;align-items:center;gap:6px;padding:7px 14px;border-radius:8px;font-size:13px;font-family:'Sarabun',sans-serif;font-weight:600;cursor:pointer;border:none;transition:all .2s}
+.hdr-btn-outline{background:#f8fafc;border:1.5px solid #e2e8f0;color:#475569}
+.hdr-btn-outline:hover{border-color:#4f46e5;color:#4f46e5;background:#eef2ff}
+.hdr-btn-primary{background:linear-gradient(135deg,#4f46e5,#7c3aed);color:#fff;box-shadow:0 2px 8px rgba(79,70,229,.3)}
+.hdr-btn-primary:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(79,70,229,.4)}
+.chip{display:inline-flex;align-items:center;gap:5px;padding:5px 10px;border-radius:20px;font-size:12px;font-weight:600}
+.chip-green{background:#d1fae5;color:#059669}
+.chip-yellow{background:#fef3c7;color:#d97706}
+.chip-blue{background:#dbeafe;color:#2563eb}
+.chip-red{background:#fee2e2;color:#dc2626}
+.chip-purple{background:#ede9fe;color:#7c3aed}
+.chip-gray{background:#f1f5f9;color:#64748b}
+#status-dot{width:8px;height:8px;border-radius:50%;background:#10b981;flex-shrink:0}
+#status-dot.off{background:#ef4444}
+
+/* ── Content ── */
+#content{flex:1;overflow-y:auto;padding:24px}
+
+/* ── Loading ── */
+#loading-overlay{position:fixed;inset:0;background:linear-gradient(135deg,#1e1b4b,#312e81);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;color:#fff}
+.spinner{width:48px;height:48px;border:4px solid rgba(255,255,255,.2);border-top-color:#fff;border-radius:50%;animation:spin .8s linear infinite;margin-bottom:16px}
+@keyframes spin{to{transform:rotate(360deg)}}
+#loading-overlay p{font-size:16px;opacity:.8;margin-top:8px}
+
+/* ── Cards ── */
+.card{background:#fff;border-radius:16px;padding:20px;box-shadow:0 2px 8px rgba(0,0,0,.06)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.kpi-card{border-radius:16px;padding:20px;color:#fff;position:relative;overflow:hidden}
+.kpi-card h3{font-size:13px;font-weight:500;opacity:.85;margin-bottom:8px}
+.kpi-card .val{font-size:26px;font-weight:800}
+.kpi-card .sub{font-size:12px;opacity:.7;margin-top:4px}
+.kpi-card .icon{position:absolute;right:16px;top:16px;font-size:32px;opacity:.3}
+.g1{background:linear-gradient(135deg,#4f46e5,#7c3aed)}
+.g2{background:linear-gradient(135deg,#0ea5e9,#0284c7)}
+.g3{background:linear-gradient(135deg,#10b981,#059669)}
+.g4{background:linear-gradient(135deg,#f59e0b,#d97706)}
+.g5{background:linear-gradient(135deg,#ef4444,#dc2626)}
+.g6{background:linear-gradient(135deg,#8b5cf6,#6d28d9)}
+
+/* ── Table ── */
+.tbl-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse}
+th{padding:10px 14px;text-align:left;font-size:12px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.5px;border-bottom:2px solid #f1f5f9;white-space:nowrap}
+td{padding:11px 14px;font-size:13px;color:#334155;border-bottom:1px solid #f8fafc;vertical-align:middle}
+tr:hover td{background:#fafbff}
+.avatar{width:36px;height:36px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#fff;margin-right:8px;flex-shrink:0}
+.td-name{display:flex;align-items:center}
+.badge{display:inline-flex;align-items:center;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700}
+.badge-it{background:#ede9fe;color:#5b21b6}
+.badge-hr{background:#fce7f3;color:#9d174d}
+.badge-fin{background:#d1fae5;color:#065f46}
+.badge-mkt{background:#fff7ed;color:#92400e}
+.badge-sales{background:#fef9c3;color:#713f12}
+.badge-ops{background:#f0fdf4;color:#166534}
+.badge-active{background:#d1fae5;color:#059669}
+.badge-inactive{background:#fee2e2;color:#dc2626}
+.badge-pending{background:#fef3c7;color:#b45309}
+.badge-approved{background:#d1fae5;color:#059669}
+.badge-rejected{background:#fee2e2;color:#dc2626}
+
+/* ── Buttons ── */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:8px;font-size:13px;font-family:'Sarabun',sans-serif;font-weight:600;cursor:pointer;border:none;transition:all .2s}
+.btn-primary{background:#4f46e5;color:#fff}
+.btn-primary:hover{background:#4338ca}
+.btn-success{background:#10b981;color:#fff}
+.btn-success:hover{background:#059669}
+.btn-danger{background:#ef4444;color:#fff}
+.btn-danger:hover{background:#dc2626}
+.btn-outline{background:#f8fafc;border:1.5px solid #e2e8f0;color:#475569}
+.btn-outline:hover{border-color:#4f46e5;color:#4f46e5}
+.btn-sm{padding:5px 11px;font-size:12px}
+.btn-xs{padding:3px 8px;font-size:11px;border-radius:6px}
+
+/* ── Modal ── */
+.modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.5);backdrop-filter:blur(4px);z-index:1000;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .2s;pointer-events:none}
+.modal-backdrop.open{opacity:1;pointer-events:all}
+.modal{background:#fff;border-radius:20px;padding:28px;width:90%;max-width:600px;max-height:90vh;overflow-y:auto;transform:scale(.95);transition:transform .2s;box-shadow:0 20px 60px rgba(0,0,0,.2)}
+.modal-backdrop.open .modal{transform:scale(1)}
+.modal-lg{max-width:800px}
+.modal-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+.modal-title{font-size:18px;font-weight:700;color:#1e293b}
+.modal-close{width:32px;height:32px;border-radius:8px;background:#f1f5f9;border:none;cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;color:#64748b}
+.modal-close:hover{background:#e2e8f0}
+
+/* ── Form ── */
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.form-full{grid-column:1/-1}
+.form-group{display:flex;flex-direction:column;gap:5px}
+label{font-size:13px;font-weight:600;color:#374151}
+input,select,textarea{padding:9px 12px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:13px;font-family:'Sarabun',sans-serif;color:#1e293b;background:#fff;transition:border-color .2s;outline:none;width:100%}
+input:focus,select:focus,textarea:focus{border-color:#4f46e5;box-shadow:0 0 0 3px rgba(79,70,229,.1)}
+textarea{resize:vertical;min-height:80px}
+
+/* ── Toast ── */
+#toast-container{position:fixed;bottom:24px;right:24px;z-index:9000;display:flex;flex-direction:column;gap:8px}
+.toast{padding:12px 18px;border-radius:12px;font-size:13px;font-weight:600;color:#fff;display:flex;align-items:center;gap:8px;box-shadow:0 4px 16px rgba(0,0,0,.2);animation:slideIn .3s ease;min-width:260px}
+.toast-success{background:linear-gradient(135deg,#059669,#10b981)}
+.toast-error{background:linear-gradient(135deg,#dc2626,#ef4444)}
+.toast-info{background:linear-gradient(135deg,#2563eb,#3b82f6)}
+.toast-sync{background:linear-gradient(135deg,#7c3aed,#8b5cf6)}
+@keyframes slideIn{from{transform:translateX(100%);opacity:0}to{transform:translateX(0);opacity:1}}
+
+/* ── Misc ── */
+.toolbar{display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap}
+.toolbar .spacer{flex:1}
+.empty-state{text-align:center;padding:48px;color:#94a3b8}
+.empty-state .icon{font-size:48px;margin-bottom:12px}
+.section-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.section-title{font-size:16px;font-weight:700;color:#1e293b;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+
+/* ── Network Modal ── */
+#net-modal .url-box{background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:10px;padding:10px 14px;font-size:13px;word-break:break-all;color:#1e293b;margin:8px 0}
+#net-modal .qr-img{width:140px;height:140px;border-radius:10px;border:2px solid #e2e8f0}
+.url-row{display:flex;align-items:center;gap:8px}
+.url-row .url-box{flex:1;margin:0}
+
+/* ── Payslip ── */
+.payslip{font-family:'Sarabun',sans-serif;background:#fff;padding:40px;max-width:680px;margin:0 auto}
+.payslip-hdr{text-align:center;padding-bottom:20px;border-bottom:2px solid #4f46e5}
+.payslip-logo{font-size:40px;margin-bottom:8px}
+.payslip-company{font-size:20px;font-weight:800;color:#1e293b}
+.payslip-sub{font-size:12px;color:#64748b}
+.payslip-period{background:linear-gradient(135deg,#4f46e5,#7c3aed);color:#fff;padding:12px 24px;border-radius:10px;text-align:center;margin:20px 0;font-size:16px;font-weight:700}
+.payslip-info{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:20px}
+.payslip-info div{font-size:13px}
+.payslip-info strong{color:#4f46e5}
+.payslip-table{width:100%;border-collapse:collapse;margin-bottom:16px}
+.payslip-table th{background:#f8fafc;padding:8px 12px;text-align:left;font-size:12px;font-weight:700;color:#64748b;text-transform:uppercase}
+.payslip-table td{padding:8px 12px;font-size:13px;border-bottom:1px solid #f1f5f9}
+.payslip-table td:last-child{text-align:right;font-weight:600}
+.payslip-net{background:linear-gradient(135deg,#4f46e5,#7c3aed);color:#fff;border-radius:14px;padding:20px;text-align:center;margin-top:16px}
+.payslip-net p{font-size:14px;opacity:.85}
+.payslip-net .amount{font-size:36px;font-weight:800}
+@media print{body{background:#fff}#sidebar,#header,#toast-container,#loading-overlay{display:none!important}#main{overflow:visible}#content{overflow:visible;padding:0}}
+
+/* ── View transitions ── */
+.view{animation:fadeUp .25s ease}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── Refresh spin ── */
+@keyframes rotateSpin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+.spin{animation:rotateSpin .8s linear infinite;display:inline-block}
+
+/* ── Settings ── */
+.settings-panel{background:#fff;border-radius:16px;padding:24px;box-shadow:0 2px 8px rgba(0,0,0,.06)}
+.settings-panel h3{font-size:16px;font-weight:700;color:#1e293b;margin-bottom:16px;display:flex;align-items:center;gap:8px;padding-bottom:12px;border-bottom:1px solid #f1f5f9}
+.checkbox-row{display:flex;align-items:center;gap:10px;cursor:pointer;font-size:14px}
+.checkbox-row input[type=checkbox]{width:18px;height:18px;cursor:pointer}
+.conn-status-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid #f1f5f9;font-size:13px}
+.conn-status-row:last-child{border:none}
+.conn-label{color:#64748b;font-weight:500}
+.conn-val{color:#1e293b;font-weight:600;word-break:break-all;text-align:right;max-width:60%}
+
+/* ── Reports ── */
+.report-card{background:#fff;border-radius:16px;padding:20px;box-shadow:0 2px 8px rgba(0,0,0,.06);display:flex;flex-direction:column;gap:10px}
+.report-icon{font-size:32px}
+.report-card h3{font-size:15px;font-weight:700;color:#1e293b}
+.report-card p{font-size:12px;color:#94a3b8;flex:1}
+
+/* ── DARK THEME ── */
+html[data-theme=dark] body{background:#0f172a;color:#e2e8f0}
+html[data-theme=dark] #main{background:#0f172a}
+html[data-theme=dark] #header{background:#1e293b;border-color:#334155;box-shadow:0 1px 4px rgba(0,0,0,.4)}
+html[data-theme=dark] #page-title h1{color:#f1f5f9}
+html[data-theme=dark] #page-title p{color:#64748b}
+html[data-theme=dark] #last-save{color:#475569}
+html[data-theme=dark] #content{background:#0f172a}
+html[data-theme=dark] .card{background:#1e293b;box-shadow:0 2px 8px rgba(0,0,0,.3)}
+html[data-theme=dark] .settings-panel{background:#1e293b;box-shadow:0 2px 8px rgba(0,0,0,.3)}
+html[data-theme=dark] .report-card{background:#1e293b;box-shadow:0 2px 8px rgba(0,0,0,.3)}
+html[data-theme=dark] .report-card h3{color:#f1f5f9}
+html[data-theme=dark] .report-card p{color:#64748b}
+html[data-theme=dark] .settings-panel h3{color:#f1f5f9;border-color:#334155}
+html[data-theme=dark] th{background:#0f172a;color:#94a3b8;border-color:#334155}
+html[data-theme=dark] td{color:#cbd5e1;border-color:#1e293b}
+html[data-theme=dark] tr:hover td{background:#1e2d40}
+html[data-theme=dark] input,html[data-theme=dark] select,html[data-theme=dark] textarea{background:#0f172a;border-color:#334155;color:#e2e8f0}
+html[data-theme=dark] input:focus,html[data-theme=dark] select:focus,html[data-theme=dark] textarea:focus{border-color:#6366f1;box-shadow:0 0 0 3px rgba(99,102,241,.2)}
+html[data-theme=dark] .modal{background:#1e293b}
+html[data-theme=dark] .modal-close{background:#0f172a;color:#94a3b8}
+html[data-theme=dark] .modal-close:hover{background:#1e2d40}
+html[data-theme=dark] label{color:#94a3b8}
+html[data-theme=dark] .form-group label{color:#94a3b8}
+html[data-theme=dark] .section-title{color:#f1f5f9}
+html[data-theme=dark] .section-hdr .section-title{color:#f1f5f9}
+html[data-theme=dark] .conn-label{color:#64748b}
+html[data-theme=dark] .conn-val{color:#e2e8f0}
+html[data-theme=dark] .conn-status-row{border-color:#334155}
+html[data-theme=dark] .checkbox-row{color:#94a3b8}
+html[data-theme=dark] .btn-outline{background:#1e293b;border-color:#334155;color:#94a3b8}
+html[data-theme=dark] .btn-outline:hover{border-color:#6366f1;color:#818cf8;background:#1e293b}
+html[data-theme=dark] .hdr-btn-outline{background:#1e293b;border-color:#334155;color:#94a3b8}
+html[data-theme=dark] .hdr-btn-outline:hover{border-color:#6366f1;color:#818cf8}
+html[data-theme=dark] .empty-state{color:#475569}
+html[data-theme=dark] .chip-gray{background:#334155;color:#94a3b8}
+html[data-theme=dark] #net-modal .url-box{background:#0f172a;border-color:#334155;color:#e2e8f0}
+html[data-theme=dark] .modal-backdrop{background:rgba(0,0,0,.75)}
+html[data-theme=dark] .modal-backdrop.open .modal{box-shadow:0 20px 60px rgba(0,0,0,.5)}
+html[data-theme=dark] #status-text{color:#94a3b8}
+html[data-theme=dark] .sb-footer{color:rgba(255,255,255,.2);border-color:rgba(255,255,255,.05)}
+html[data-theme=dark] .toolbar input,html[data-theme=dark] .toolbar select{background:#1e293b;border-color:#334155;color:#e2e8f0}
+
+/* ── PURPLE THEME ── */
+html[data-theme=purple] #sidebar{background:linear-gradient(180deg,#1a0533 0%,#3b0764 50%,#0d001e 100%)}
+html[data-theme=purple] .sb-item.active{background:linear-gradient(135deg,#9333ea,#c026d3);box-shadow:0 4px 12px rgba(147,51,234,.4)}
+html[data-theme=purple] .hdr-btn-primary{background:linear-gradient(135deg,#9333ea,#c026d3);box-shadow:0 2px 8px rgba(147,51,234,.3)}
+html[data-theme=purple] .btn-primary{background:linear-gradient(135deg,#9333ea,#c026d3)}
+html[data-theme=purple] .btn-primary:hover{background:linear-gradient(135deg,#7e22ce,#a21caf)}
+html[data-theme=purple] input:focus,html[data-theme=purple] select:focus,html[data-theme=purple] textarea:focus{border-color:#9333ea;box-shadow:0 0 0 3px rgba(147,51,234,.1)}
+
+/* ── SWITCHER BUTTONS ── */
+.theme-switcher{display:flex;gap:4px;background:#f1f5f9;border-radius:10px;padding:3px}
+html[data-theme=dark] .theme-switcher{background:#0f172a}
+.theme-btn{padding:5px 9px;border-radius:7px;border:none;cursor:pointer;font-size:14px;background:transparent;transition:all .2s;line-height:1}
+.theme-btn.active{background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.15)}
+html[data-theme=dark] .theme-btn.active{background:#1e293b}
+.lang-switcher{display:flex;gap:4px;background:#f1f5f9;border-radius:10px;padding:3px}
+html[data-theme=dark] .lang-switcher{background:#0f172a}
+.lang-btn{padding:5px 10px;border-radius:7px;border:none;cursor:pointer;font-size:12px;font-weight:700;font-family:'Sarabun',sans-serif;background:transparent;color:#64748b;transition:all .2s}
+.lang-btn.active{background:#4f46e5;color:#fff;box-shadow:0 1px 3px rgba(79,70,229,.4)}
+html[data-theme=purple] .lang-btn.active{background:#9333ea}
+html[data-theme=dark] .lang-btn{color:#64748b}
+html[data-theme=dark] .lang-btn.active{background:#4f46e5;color:#fff}
+</style>
+</head>
+<body>
+
+<!-- Loading Overlay -->
+<div id="loading-overlay">
+  <div class="spinner"></div>
+  <h2 style="font-size:24px;font-weight:800;margin-bottom:8px">PayrollPro</h2>
+  <p>กำลังเชื่อมต่อกับเซิร์ฟเวอร์...</p>
+</div>
+
+<!-- Toast Container -->
+<div id="toast-container"></div>
+
+<!-- Sidebar -->
+<div id="sidebar">
+  <div class="sb-logo">
+    <div style="font-size:28px;margin-bottom:6px">💎</div>
+    <div class="sb-logo-title">PayrollPro</div>
+    <div class="sb-logo-sub">ระบบบริหารเงินเดือน v2.0</div>
+  </div>
+  <div class="sb-section">เมนูหลัก</div>
+  <div class="sb-item active" onclick="navigate('dashboard')" id="nav-dashboard">
+    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5" stroke-width="2"/><rect x="14" y="3" width="7" height="7" rx="1.5" stroke-width="2"/><rect x="3" y="14" width="7" height="7" rx="1.5" stroke-width="2"/><rect x="14" y="14" width="7" height="7" rx="1.5" stroke-width="2"/></svg>
+    แดชบอร์ด
+  </div>
+  <div class="sb-item" onclick="navigate('employees')" id="nav-employees">
+    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
+    ข้อมูลพนักงาน
+  </div>
+  <div class="sb-item" onclick="navigate('payroll')" id="nav-payroll">
+    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20M6 15h4M14 15h4"/></svg>
+    คำนวณเงินเดือน
+  </div>
+  <div class="sb-section">การบริหาร</div>
+  <div class="sb-item" onclick="navigate('leave')" id="nav-leave">
+    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01"/></svg>
+    การลา
+  </div>
+  <div class="sb-item" onclick="navigate('ot')" id="nav-ot">
+    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+    ล่วงเวลา (OT)
+  </div>
+  <div class="sb-item" onclick="navigate('reports')" id="nav-reports">
+    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/></svg>
+    รายงาน
+  </div>
+  <div class="sb-item" onclick="navigate('settings')" id="nav-settings">
+    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+    ตั้งค่าระบบ
+  </div>
+  <div class="sb-footer">Real-time Payroll System<br>Web + Desktop Sync</div>
+</div>
+
+<!-- Main -->
+<div id="main">
+  <div id="header">
+    <div id="page-title">
+      <h1 id="hdr-title">แดชบอร์ด</h1>
+      <p id="hdr-sub">ภาพรวมระบบเงินเดือน</p>
+    </div>
+    <span id="save-chip" class="chip chip-green">✅ พร้อมใช้งาน</span>
+    <span id="last-save" style="font-size:11px;color:#94a3b8"></span>
+    <button class="hdr-btn hdr-btn-outline" onclick="refreshData()" id="refresh-btn">
+      <span id="refresh-icon">🔄</span> <span id="lbl-refresh">รีเฟรช</span>
+    </button>
+    <div style="display:flex;align-items:center;gap:6px">
+      <div id="status-dot"></div>
+      <span id="status-text" style="font-size:13px;color:#64748b">กำลังเชื่อมต่อ</span>
+    </div>
+    <span id="clients-chip" class="chip chip-purple" style="display:none">🖥️ 1 อุปกรณ์</span>
+    <div class="theme-switcher" title="เปลี่ยนธีม / Change theme">
+      <button class="theme-btn active" id="btn-light"  onclick="applyTheme('light')"  title="สว่าง / Light">☀️</button>
+      <button class="theme-btn"        id="btn-dark"   onclick="applyTheme('dark')"   title="มืด / Dark">🌙</button>
+      <button class="theme-btn"        id="btn-purple" onclick="applyTheme('purple')" title="ม่วง / Purple">💜</button>
+    </div>
+    <div class="lang-switcher" title="เปลี่ยนภาษา / Change language">
+      <button class="lang-btn active" id="btn-th" onclick="setLang('th')">TH</button>
+      <button class="lang-btn"        id="btn-en" onclick="setLang('en')">EN</button>
+    </div>
+    <button class="hdr-btn hdr-btn-primary" onclick="openNetworkModal()" id="lbl-online-btn">🌐 เข้าถึงออนไลน์</button>
+    <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#4f46e5,#7c3aed);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:14px;flex-shrink:0">HR</div>
+  </div>
+  <div id="content"></div>
+</div>
+
+<!-- Employee Modal -->
+<div class="modal-backdrop" id="emp-modal">
+  <div class="modal modal-lg">
+    <div class="modal-hdr">
+      <div class="modal-title" id="emp-modal-title">เพิ่มพนักงาน</div>
+      <button class="modal-close" onclick="closeModal('emp-modal')">✕</button>
+    </div>
+    <div class="form-grid">
+      <div class="form-group"><label>รหัสพนักงาน *</label><input id="ef-id" placeholder="EMP001"></div>
+      <div class="form-group"><label>สถานะ</label><select id="ef-status"><option value="active">ทำงานอยู่</option><option value="inactive">ลาออก/พักงาน</option></select></div>
+      <div class="form-group"><label>ชื่อ *</label><input id="ef-fname" placeholder="ชื่อ"></div>
+      <div class="form-group"><label>นามสกุล *</label><input id="ef-lname" placeholder="นามสกุล"></div>
+      <div class="form-group"><label>แผนก *</label><select id="ef-dept"><option>IT</option><option>HR</option><option>Finance</option><option>Marketing</option><option>Sales</option><option>Operations</option></select></div>
+      <div class="form-group"><label>ตำแหน่ง *</label><input id="ef-pos" placeholder="ตำแหน่ง"></div>
+      <div class="form-group"><label>เงินเดือน (บาท) *</label><input id="ef-salary" type="number" placeholder="45000"></div>
+      <div class="form-group"><label>วันที่เริ่มงาน</label><input id="ef-start" type="date"></div>
+      <div class="form-group"><label>อีเมล</label><input id="ef-email" type="email" placeholder="email@company.com"></div>
+      <div class="form-group"><label>เบอร์โทร</label><input id="ef-phone" placeholder="08x-xxx-xxxx"></div>
+      <div class="form-group"><label>เลขบัตรประชาชน</label><input id="ef-pid" placeholder="x-xxxx-xxxxx-xx-x"></div>
+      <div class="form-group"><label>ธนาคาร</label><select id="ef-bank"><option>KBank</option><option>SCB</option><option>Bangkok Bank</option><option>KTB</option><option>Krungsri</option><option>TMB</option><option>UOB</option></select></div>
+      <div class="form-group form-full"><label>เลขที่บัญชีธนาคาร</label><input id="ef-acc" placeholder="xxx-x-xxxxx-x"></div>
+    </div>
+    <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:20px">
+      <button class="btn btn-outline" onclick="closeModal('emp-modal')">ยกเลิก</button>
+      <button class="btn btn-primary" onclick="saveEmployee()">💾 บันทึก</button>
+    </div>
+  </div>
+</div>
+
+<!-- Leave Modal -->
+<div class="modal-backdrop" id="leave-modal">
+  <div class="modal">
+    <div class="modal-hdr">
+      <div class="modal-title">บันทึกการลา</div>
+      <button class="modal-close" onclick="closeModal('leave-modal')">✕</button>
+    </div>
+    <div class="form-grid">
+      <div class="form-group form-full"><label>พนักงาน *</label><select id="lf-emp"></select></div>
+      <div class="form-group"><label>ประเภทการลา *</label><select id="lf-type"><option>ลาป่วย</option><option>ลากิจ</option><option>ลาพักร้อน</option><option>ลาคลอด</option></select></div>
+      <div class="form-group"><label>จำนวนวัน</label><input id="lf-days" type="number" min="1" value="1"></div>
+      <div class="form-group"><label>วันที่เริ่มลา *</label><input id="lf-start" type="date" onchange="calcLeaveDays()"></div>
+      <div class="form-group"><label>วันที่สิ้นสุด *</label><input id="lf-end" type="date" onchange="calcLeaveDays()"></div>
+      <div class="form-group form-full"><label>เหตุผล</label><textarea id="lf-reason" placeholder="เหตุผลการลา"></textarea></div>
+    </div>
+    <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:20px">
+      <button class="btn btn-outline" onclick="closeModal('leave-modal')">ยกเลิก</button>
+      <button class="btn btn-primary" onclick="saveLeave()">💾 บันทึก</button>
+    </div>
+  </div>
+</div>
+
+<!-- OT Modal -->
+<div class="modal-backdrop" id="ot-modal">
+  <div class="modal">
+    <div class="modal-hdr">
+      <div class="modal-title">บันทึก OT</div>
+      <button class="modal-close" onclick="closeModal('ot-modal')">✕</button>
+    </div>
+    <div class="form-grid">
+      <div class="form-group form-full"><label>พนักงาน *</label><select id="of-emp"></select></div>
+      <div class="form-group"><label>วันที่ทำ OT *</label><input id="of-date" type="date"></div>
+      <div class="form-group"><label>จำนวนชั่วโมง *</label><input id="of-hours" type="number" min="0.5" step="0.5" value="1"></div>
+      <div class="form-group"><label>อัตราค่า OT</label><select id="of-type"><option value="1.5">×1.5 (วันทำงาน)</option><option value="2">×2 (วันหยุด)</option><option value="3">×3 (วันหยุดนักขัตฤกษ์)</option></select></div>
+      <div class="form-group form-full"><label>หมายเหตุ</label><input id="of-note" placeholder="รายละเอียดงาน OT"></div>
+    </div>
+    <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:20px">
+      <button class="btn btn-outline" onclick="closeModal('ot-modal')">ยกเลิก</button>
+      <button class="btn btn-primary" onclick="saveOT()">💾 บันทึก</button>
+    </div>
+  </div>
+</div>
+
+<!-- Payslip Modal -->
+<div class="modal-backdrop" id="payslip-modal">
+  <div class="modal modal-lg">
+    <div class="modal-hdr">
+      <div class="modal-title">สลิปเงินเดือน</div>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-outline btn-sm" onclick="window.print()">🖨️ พิมพ์</button>
+        <button class="modal-close" onclick="closeModal('payslip-modal')">✕</button>
+      </div>
+    </div>
+    <div id="payslip-content"></div>
+  </div>
+</div>
+
+<!-- Network Modal -->
+<div class="modal-backdrop" id="net-modal">
+  <div class="modal modal-lg">
+    <div class="modal-hdr">
+      <div class="modal-title">🌐 เข้าถึงจากอุปกรณ์อื่น</div>
+      <button class="modal-close" onclick="closeModal('net-modal')">✕</button>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+      <div>
+        <p style="font-size:13px;font-weight:700;color:#64748b;margin-bottom:8px">📡 เครือข่ายท้องถิ่น (LAN)</p>
+        <div class="url-row">
+          <div class="url-box" id="net-lan-url">รอข้อมูล...</div>
+          <button class="btn btn-outline btn-sm" onclick="copyURL('net-lan-url')">📋</button>
+        </div>
+        <div style="text-align:center;margin-top:12px"><img id="net-lan-qr" class="qr-img" src="" alt="QR LAN"></div>
+      </div>
+      <div>
+        <p style="font-size:13px;font-weight:700;color:#64748b;margin-bottom:8px">🌍 อินเทอร์เน็ต (Online)</p>
+        <div class="url-row">
+          <div class="url-box" id="net-online-url">กำลังสร้าง URL...</div>
+          <button class="btn btn-outline btn-sm" onclick="copyURL('net-online-url')">📋</button>
+        </div>
+        <div style="text-align:center;margin-top:12px"><img id="net-online-qr" class="qr-img" src="" alt="QR Online"></div>
+      </div>
+    </div>
+    <div style="margin-top:20px;padding:14px;background:#fef3c7;border-radius:10px;font-size:13px;color:#92400e">
+      💡 URL ออนไลน์ใช้ได้ตราบใดที่โปรแกรม PayrollPro ยังเปิดอยู่ ข้อมูลซิงค์แบบเรียลไทม์ทุกอุปกรณ์
+    </div>
+    <div style="margin-top:12px;padding:12px 16px;background:#f0fdf4;border-radius:10px">
+      <div class="conn-status-row"><span class="conn-label">สถานะ</span><span class="conn-val" id="net-status-val">–</span></div>
+      <div class="conn-status-row"><span class="conn-label">อุปกรณ์ที่เชื่อมต่อ</span><span class="conn-val" id="net-clients-val">–</span></div>
+      <div class="conn-status-row"><span class="conn-label">บันทึกล่าสุด</span><span class="conn-val" id="net-lastsave-val">–</span></div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ════════════════════════════════════════════════════
+// THEME & LANGUAGE SYSTEM
+// ════════════════════════════════════════════════════
+let currentTheme = localStorage.getItem('ppt') || 'light'
+let currentLang  = localStorage.getItem('ppl') || 'th'
+document.documentElement.setAttribute('data-theme', currentTheme)
+
+const LANG = {
+  th: {
+    // Nav
+    nav_main:'เมนูหลัก', nav_mgmt:'การบริหาร',
+    nav_dashboard:'แดชบอร์ด', nav_employees:'ข้อมูลพนักงาน',
+    nav_payroll:'คำนวณเงินเดือน', nav_leave:'การลา',
+    nav_ot:'ล่วงเวลา (OT)', nav_reports:'รายงาน', nav_settings:'ตั้งค่าระบบ',
+    // Page titles
+    pt_dashboard:'แดชบอร์ด', ps_dashboard:'ภาพรวมระบบเงินเดือน',
+    pt_employees:'ข้อมูลพนักงาน', ps_employees:'จัดการข้อมูลพนักงานทั้งหมด',
+    pt_payroll:'คำนวณเงินเดือน', ps_payroll:'ประมวลผลเงินเดือนประจำเดือน',
+    pt_leave:'การลา', ps_leave:'บริหารจัดการการลาของพนักงาน',
+    pt_ot:'ล่วงเวลา (OT)', ps_ot:'บันทึกและอนุมัติการทำงานล่วงเวลา',
+    pt_reports:'รายงาน', ps_reports:'ออกรายงานและส่งออกข้อมูล',
+    pt_settings:'ตั้งค่าระบบ', ps_settings:'กำหนดค่าบริษัทและระบบเงินเดือน',
+    // Header
+    lbl_refresh:'รีเฟรช', lbl_online:'🌐 เข้าถึงออนไลน์',
+    status_connecting:'กำลังเชื่อมต่อ', status_connected:'เชื่อมต่อแล้ว', status_disconnected:'ขาดการเชื่อมต่อ',
+    chip_saving:'⏳ กำลังบันทึก...', chip_saved:'✅ บันทึกแล้ว', chip_ready:'✅ พร้อมใช้งาน',
+    // Dashboard
+    kpi_employees:'พนักงานทั้งหมด', kpi_active_sub:'ทำงาน {n} คน',
+    kpi_gross:'รายได้รวม', kpi_ot:'ค่า OT รวม', kpi_tax:'ภาษีรวม',
+    kpi_ssf:'ประกันสังคม', kpi_net:'จ่ายสุทธิ', kpi_leave_pend:'ลารออนุมัติ',
+    kpi_depts:'แผนก', unit_month:'บาท/เดือน', unit_req:'รายการ', unit_dept:'แผนก',
+    chart_trend:'📈 แนวโน้มเงินเดือน 6 เดือน', chart_dept:'🏢 ต้นทุนตามแผนก',
+    top5:'👥 Top 5 เงินเดือนสุทธิ',
+    col_emp:'พนักงาน', col_dept:'แผนก', col_salary:'เงินเดือน', col_ot:'OT', col_net:'สุทธิ',
+    // Employees
+    emp_search_ph:'🔍 ค้นหาชื่อ, รหัส, ตำแหน่ง...',
+    all_depts:'ทุกแผนก', btn_export:'⬇️ Export CSV', btn_add_emp:'+ เพิ่มพนักงาน',
+    col_code:'รหัส', col_name:'ชื่อ-นามสกุล', col_pos:'ตำแหน่ง',
+    col_start:'วันเริ่มงาน', col_status:'สถานะ', col_manage:'จัดการ',
+    no_employees:'ไม่พบพนักงาน', show_n:'{a} จาก {b} รายการ',
+    btn_edit:'✏️ แก้ไข',
+    // Emp modal
+    modal_add_emp:'เพิ่มพนักงาน', modal_edit_emp:'แก้ไขข้อมูลพนักงาน',
+    lbl_emp_id:'รหัสพนักงาน *', lbl_emp_status:'สถานะ',
+    lbl_fname:'ชื่อ *', lbl_lname:'นามสกุล *',
+    lbl_dept:'แผนก *', lbl_pos:'ตำแหน่ง *', lbl_salary:'เงินเดือน (บาท) *',
+    lbl_start:'วันที่เริ่มงาน', lbl_email:'อีเมล', lbl_phone:'เบอร์โทร',
+    lbl_pid:'เลขบัตรประชาชน', lbl_bank:'ธนาคาร', lbl_acc:'เลขที่บัญชีธนาคาร',
+    btn_cancel:'ยกเลิก', btn_save:'💾 บันทึก',
+    opt_active:'ทำงานอยู่', opt_inactive:'ลาออก/พักงาน',
+    // Payroll
+    period_lbl:'งวด:', pay_day_lbl:'วันจ่าย:', of_month:'ของเดือน',
+    btn_bank:'🏦 Bank Transfer',
+    kpi_count:'จำนวนพนักงาน', unit_people:'คน',
+    kpi_gross_pay:'รายได้รวม', unit_thb:'บาท', kpi_tax_pay:'ภาษีรวม', kpi_net_pay:'จ่ายสุทธิ',
+    col_allow:'เบี้ยเลี้ยง', col_ssf:'SSF', col_tax:'ภาษี', col_pf:'PF', col_slip:'สลิป',
+    row_total:'รวม',
+    // Payslip
+    slip_title:'สลิปเงินเดือน', slip_print:'🖨️ พิมพ์', slip_cert:'ใบรับรองเงินเดือน',
+    slip_income:'รายได้', slip_deduct:'รายการหัก',
+    slip_base:'เงินเดือน', slip_ot:'ค่าล่วงเวลา (OT)', slip_allow:'เบี้ยเลี้ยง',
+    slip_gross:'รายได้รวม', slip_ssf:'ประกันสังคม ({r}%)',
+    slip_tax:'ภาษีเงินได้ บุคคลธรรมดา', slip_pf:'กองทุนสำรองเลี้ยงชีพ ({r}%)',
+    slip_total_deduct:'หักรวม', slip_net:'เงินที่ได้รับสุทธิ (Net Pay)',
+    slip_contact:'หากมีข้อสงสัยกรุณาติดต่อ HR',
+    // Leave
+    lv_all:'ทั้งหมด', lv_pending:'รออนุมัติ', lv_approved:'อนุมัติแล้ว', lv_rejected:'ไม่อนุมัติ',
+    btn_export_lv:'⬇️ Export CSV', btn_add_leave:'+ บันทึกการลา',
+    col_lv_type:'ประเภท', col_lv_start:'วันเริ่ม', col_lv_end:'วันสิ้นสุด',
+    col_lv_days:'วัน', col_lv_reason:'เหตุผล', no_leave:'ไม่มีรายการ',
+    modal_leave:'บันทึกการลา',
+    lbl_lv_emp:'พนักงาน *', lbl_lv_type:'ประเภทการลา *',
+    lbl_lv_days:'จำนวนวัน', lbl_lv_start:'วันที่เริ่มลา *',
+    lbl_lv_end:'วันที่สิ้นสุด *', lbl_lv_reason:'เหตุผล',
+    opt_sick:'ลาป่วย', opt_personal:'ลากิจ', opt_annual:'ลาพักร้อน', opt_maternity:'ลาคลอด',
+    // OT
+    btn_export_ot:'⬇️ Export CSV', btn_add_ot:'+ บันทึก OT',
+    kpi_ot_all:'รายการทั้งหมด', kpi_ot_hrs:'ชั่วโมง OT (อนุมัติ)', kpi_ot_pay:'ค่า OT รวม',
+    unit_hrs:'ชั่วโมง',
+    col_ot_date:'วันที่', col_ot_hrs:'ชั่วโมง', col_ot_rate:'อัตรา',
+    col_ot_pay:'ค่า OT', col_ot_note:'หมายเหตุ', no_ot:'ไม่มีรายการ OT',
+    modal_ot:'บันทึก OT',
+    lbl_ot_emp:'พนักงาน *', lbl_ot_date:'วันที่ทำ OT *',
+    lbl_ot_hrs:'จำนวนชั่วโมง *', lbl_ot_rate:'อัตราค่า OT', lbl_ot_note:'หมายเหตุ',
+    opt_ot15:'×1.5 (วันทำงาน)', opt_ot2:'×2 (วันหยุด)', opt_ot3:'×3 (วันหยุดนักขัตฤกษ์)',
+    // Reports
+    dl_csv:'⬇️ ดาวน์โหลด CSV',
+    // Settings
+    s_company:'🏢 ข้อมูลบริษัท', s_coname:'ชื่อบริษัท', s_taxid:'เลขที่ผู้เสียภาษี',
+    s_addr:'ที่อยู่', s_phone:'เบอร์โทร', s_email:'อีเมล HR', s_save_co:'💾 บันทึกข้อมูลบริษัท',
+    s_payroll:'💰 ตั้งค่าเงินเดือน', s_pmonth:'เดือนงวด', s_pyear:'ปีงวด (พ.ศ.)',
+    s_payday:'วันที่จ่ายเงิน', s_ssfrate:'อัตรา SSF (%)', s_ssfcap:'เพดาน SSF (บาท)',
+    s_pfrate:'อัตรา PF (%)', s_wd:'วันทำงาน/เดือน', s_wh:'ชั่วโมง/วัน',
+    s_pf_chk:'เปิดใช้กองทุนสำรองเลี้ยงชีพ (PF)', s_save_pr:'💾 บันทึกตั้งค่าเงินเดือน',
+    s_leave:'📅 ตั้งค่าสิทธิ์การลา (วัน/ปี)',
+    s_al:'ลาพักร้อน (วัน)', s_sl:'ลาป่วย (วัน)', s_pl:'ลากิจ (วัน)', s_ml:'ลาคลอด (วัน)',
+    s_save_lv:'💾 บันทึกตั้งค่าการลา',
+    s_net:'🌐 สถานะการเชื่อมต่อ', s_net_sock:'Socket.IO',
+    s_net_devs:'อุปกรณ์ออนไลน์', s_net_local:'Localhost', s_net_lan:'LAN',
+    s_net_online:'Online (tunnel)', s_not_avail:'ไม่พร้อมใช้งาน',
+    s_see_qr:'🌐 ดู QR Code / คัดลอก URL', unit_devices:'อุปกรณ์',
+    // Net modal
+    net_modal_title:'🌐 เข้าถึงจากอุปกรณ์อื่น',
+    net_lan_lbl:'📡 เครือข่ายท้องถิ่น (LAN)', net_online_lbl:'🌍 อินเทอร์เน็ต (Online)',
+    net_hint:'💡 URL ออนไลน์ใช้ได้ตราบใดที่โปรแกรม PayrollPro ยังเปิดอยู่ ข้อมูลซิงค์แบบเรียลไทม์ทุกอุปกรณ์',
+    net_status_lbl:'สถานะ', net_devices_lbl:'อุปกรณ์ที่เชื่อมต่อ', net_lastsave:'บันทึกล่าสุด',
+    net_creating:'กำลังสร้าง URL... (ต้องการอินเทอร์เน็ต)',
+    copied_url:'คัดลอก URL แล้ว!',
+    // Status badges
+    st_active:'ทำงานอยู่', st_inactive:'ไม่ได้ทำงาน',
+    st_approved:'อนุมัติแล้ว', st_rejected:'ไม่อนุมัติ', st_pending:'รออนุมัติ',
+    // Confirms & errors
+    del_emp_confirm:'ลบพนักงาน "{n}" ออกจากระบบ?',
+    del_leave_confirm:'ลบรายการลานี้?', del_ot_confirm:'ลบรายการ OT นี้?',
+    err_required:'❌ กรุณากรอกข้อมูลที่จำเป็น',
+    err_dup_id:'❌ รหัสพนักงานซ้ำ',
+    err_date:'❌ วันสิ้นสุดต้องมาหลังวันเริ่มต้น',
+    err_fill:'❌ กรอกข้อมูลให้ครบ',
+  },
+  en: {
+    // Nav
+    nav_main:'Main Menu', nav_mgmt:'Management',
+    nav_dashboard:'Dashboard', nav_employees:'Employees',
+    nav_payroll:'Payroll', nav_leave:'Leave',
+    nav_ot:'Overtime (OT)', nav_reports:'Reports', nav_settings:'Settings',
+    // Page titles
+    pt_dashboard:'Dashboard', ps_dashboard:'Payroll System Overview',
+    pt_employees:'Employees', ps_employees:'Manage all employee data',
+    pt_payroll:'Payroll', ps_payroll:'Process monthly payroll',
+    pt_leave:'Leave', ps_leave:'Manage employee leave requests',
+    pt_ot:'Overtime (OT)', ps_ot:'Record and approve overtime',
+    pt_reports:'Reports', ps_reports:'Export reports and data',
+    pt_settings:'Settings', ps_settings:'Company and payroll configuration',
+    // Header
+    lbl_refresh:'Refresh', lbl_online:'🌐 Access Online',
+    status_connecting:'Connecting', status_connected:'Connected', status_disconnected:'Disconnected',
+    chip_saving:'⏳ Saving...', chip_saved:'✅ Saved', chip_ready:'✅ Ready',
+    // Dashboard
+    kpi_employees:'Total Employees', kpi_active_sub:'Active: {n}',
+    kpi_gross:'Total Income', kpi_ot:'Total OT Pay', kpi_tax:'Total Tax',
+    kpi_ssf:'Social Security', kpi_net:'Net Pay', kpi_leave_pend:'Pending Leaves',
+    kpi_depts:'Departments', unit_month:'THB/month', unit_req:'requests', unit_dept:'depts',
+    chart_trend:'📈 6-Month Payroll Trend', chart_dept:'🏢 Cost by Department',
+    top5:'👥 Top 5 Net Salary',
+    col_emp:'Employee', col_dept:'Department', col_salary:'Salary', col_ot:'OT', col_net:'Net',
+    // Employees
+    emp_search_ph:'🔍 Search name, ID, position...',
+    all_depts:'All Departments', btn_export:'⬇️ Export CSV', btn_add_emp:'+ Add Employee',
+    col_code:'Code', col_name:'Full Name', col_pos:'Position',
+    col_start:'Start Date', col_status:'Status', col_manage:'Actions',
+    no_employees:'No employees found', show_n:'{a} of {b} records',
+    btn_edit:'✏️ Edit',
+    // Emp modal
+    modal_add_emp:'Add Employee', modal_edit_emp:'Edit Employee',
+    lbl_emp_id:'Employee ID *', lbl_emp_status:'Status',
+    lbl_fname:'First Name *', lbl_lname:'Last Name *',
+    lbl_dept:'Department *', lbl_pos:'Position *', lbl_salary:'Salary (THB) *',
+    lbl_start:'Start Date', lbl_email:'Email', lbl_phone:'Phone',
+    lbl_pid:'National ID', lbl_bank:'Bank', lbl_acc:'Bank Account No.',
+    btn_cancel:'Cancel', btn_save:'💾 Save',
+    opt_active:'Active', opt_inactive:'Resigned/Suspended',
+    // Payroll
+    period_lbl:'Period:', pay_day_lbl:'Pay Day:', of_month:'of month',
+    btn_bank:'🏦 Bank Transfer',
+    kpi_count:'Employees', unit_people:'people',
+    kpi_gross_pay:'Total Income', unit_thb:'THB', kpi_tax_pay:'Total Tax', kpi_net_pay:'Net Pay',
+    col_allow:'Allowance', col_ssf:'SSF', col_tax:'Tax', col_pf:'PF', col_slip:'Slip',
+    row_total:'Total',
+    // Payslip
+    slip_title:'Payslip', slip_print:'🖨️ Print', slip_cert:'Salary Statement',
+    slip_income:'Earnings', slip_deduct:'Deductions',
+    slip_base:'Base Salary', slip_ot:'Overtime Pay', slip_allow:'Allowance',
+    slip_gross:'Total Earnings', slip_ssf:'Social Security ({r}%)',
+    slip_tax:'Income Tax (WHT)', slip_pf:'Provident Fund ({r}%)',
+    slip_total_deduct:'Total Deductions', slip_net:'Net Pay',
+    slip_contact:'Questions? Contact HR',
+    // Leave
+    lv_all:'All', lv_pending:'Pending', lv_approved:'Approved', lv_rejected:'Rejected',
+    btn_export_lv:'⬇️ Export CSV', btn_add_leave:'+ Add Leave',
+    col_lv_type:'Type', col_lv_start:'Start', col_lv_end:'End',
+    col_lv_days:'Days', col_lv_reason:'Reason', no_leave:'No records',
+    modal_leave:'Record Leave',
+    lbl_lv_emp:'Employee *', lbl_lv_type:'Leave Type *',
+    lbl_lv_days:'Days', lbl_lv_start:'Start Date *',
+    lbl_lv_end:'End Date *', lbl_lv_reason:'Reason',
+    opt_sick:'Sick Leave', opt_personal:'Personal Leave', opt_annual:'Annual Leave', opt_maternity:'Maternity Leave',
+    // OT
+    btn_export_ot:'⬇️ Export CSV', btn_add_ot:'+ Record OT',
+    kpi_ot_all:'Total Records', kpi_ot_hrs:'Approved OT Hours', kpi_ot_pay:'Total OT Pay',
+    unit_hrs:'hours',
+    col_ot_date:'Date', col_ot_hrs:'Hours', col_ot_rate:'Rate',
+    col_ot_pay:'OT Pay', col_ot_note:'Note', no_ot:'No OT records',
+    modal_ot:'Record OT',
+    lbl_ot_emp:'Employee *', lbl_ot_date:'OT Date *',
+    lbl_ot_hrs:'Hours *', lbl_ot_rate:'OT Rate', lbl_ot_note:'Note',
+    opt_ot15:'×1.5 (Weekday)', opt_ot2:'×2 (Weekend)', opt_ot3:'×3 (Public Holiday)',
+    // Reports
+    dl_csv:'⬇️ Download CSV',
+    // Settings
+    s_company:'🏢 Company Info', s_coname:'Company Name', s_taxid:'Tax ID',
+    s_addr:'Address', s_phone:'Phone', s_email:'HR Email', s_save_co:'💾 Save Company Info',
+    s_payroll:'💰 Payroll Settings', s_pmonth:'Pay Period Month', s_pyear:'Pay Period Year',
+    s_payday:'Pay Day', s_ssfrate:'SSF Rate (%)', s_ssfcap:'SSF Cap (THB)',
+    s_pfrate:'PF Rate (%)', s_wd:'Work Days/Month', s_wh:'Hours/Day',
+    s_pf_chk:'Enable Provident Fund (PF)', s_save_pr:'💾 Save Payroll Settings',
+    s_leave:'📅 Leave Entitlements (days/year)',
+    s_al:'Annual Leave (days)', s_sl:'Sick Leave (days)', s_pl:'Personal Leave (days)', s_ml:'Maternity Leave (days)',
+    s_save_lv:'💾 Save Leave Settings',
+    s_net:'🌐 Connection Status', s_net_sock:'Socket.IO',
+    s_net_devs:'Connected Devices', s_net_local:'Localhost', s_net_lan:'LAN',
+    s_net_online:'Online (tunnel)', s_not_avail:'Not available',
+    s_see_qr:'🌐 View QR Code / Copy URL', unit_devices:'devices',
+    // Net modal
+    net_modal_title:'🌐 Access from Other Devices',
+    net_lan_lbl:'📡 Local Network (LAN)', net_online_lbl:'🌍 Internet (Online)',
+    net_hint:'💡 Online URL is active while PayrollPro is running. Data syncs in real-time.',
+    net_status_lbl:'Status', net_devices_lbl:'Connected Devices', net_lastsave:'Last Saved',
+    net_creating:'Creating URL... (requires internet)',
+    copied_url:'URL copied!',
+    // Status badges
+    st_active:'Active', st_inactive:'Inactive',
+    st_approved:'Approved', st_rejected:'Rejected', st_pending:'Pending',
+    // Confirms & errors
+    del_emp_confirm:'Remove employee "{n}" from the system?',
+    del_leave_confirm:'Delete this leave record?', del_ot_confirm:'Delete this OT record?',
+    err_required:'❌ Please fill in required fields',
+    err_dup_id:'❌ Employee ID already exists',
+    err_date:'❌ End date must be after start date',
+    err_fill:'❌ Please fill in all fields',
+  }
+}
+
+function t(k) { return (LANG[currentLang]||{})[k] || (LANG.th||{})[k] || k }
+
+function applyTheme(name) {
+  currentTheme = name
+  localStorage.setItem('ppt', name)
+  document.documentElement.setAttribute('data-theme', name)
+  document.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('active'))
+  const active = document.getElementById('btn-' + name)
+  if (active) active.classList.add('active')
+}
+
+function setLang(code) {
+  currentLang = code
+  localStorage.setItem('ppl', code)
+  document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'))
+  const active = document.getElementById('btn-' + code)
+  if (active) active.classList.add('active')
+  document.documentElement.lang = code === 'th' ? 'th' : 'en'
+  updateStaticI18n()
+  renderView()
+}
+
+function updateStaticI18n() {
+  // Sidebar sections
+  const sects = document.querySelectorAll('.sb-section')
+  if (sects[0]) sects[0].textContent = t('nav_main')
+  if (sects[1]) sects[1].textContent = t('nav_mgmt')
+  // Sidebar nav items (update last text node after SVG)
+  const navMap = {
+    'nav-dashboard': t('nav_dashboard'), 'nav-employees': t('nav_employees'),
+    'nav-payroll': t('nav_payroll'),     'nav-leave': t('nav_leave'),
+    'nav-ot': t('nav_ot'),               'nav-reports': t('nav_reports'),
+    'nav-settings': t('nav_settings')
+  }
+  for (const [id, txt] of Object.entries(navMap)) {
+    const el = document.getElementById(id)
+    if (!el) continue
+    const tn = el.lastChild
+    if (tn && tn.nodeType === 3) tn.nodeValue = '\n    ' + txt + '\n  '
+  }
+  // Header labels
+  const lbRef = document.getElementById('lbl-refresh')
+  if (lbRef) lbRef.textContent = ' ' + t('lbl_refresh')
+  const lbOnline = document.getElementById('lbl-online-btn')
+  if (lbOnline) lbOnline.textContent = t('lbl_online')
+  // Page title & subtitle
+  const titleMap = {
+    dashboard:[t('pt_dashboard'),t('ps_dashboard')], employees:[t('pt_employees'),t('ps_employees')],
+    payroll:[t('pt_payroll'),t('ps_payroll')],       leave:[t('pt_leave'),t('ps_leave')],
+    ot:[t('pt_ot'),t('ps_ot')],                      reports:[t('pt_reports'),t('ps_reports')],
+    settings:[t('pt_settings'),t('ps_settings')]
+  }
+  const [pT,pS] = titleMap[currentView] || [currentView,'']
+  document.getElementById('hdr-title').textContent = pT
+  document.getElementById('hdr-sub').textContent   = pS
+  // Status text
+  const stxt = document.getElementById('status-text')
+  if (stxt) stxt.textContent = (typeof socket !== 'undefined' && socket.connected) ? t('status_connected') : t('status_connecting')
+  // Save chip
+  const chip = document.getElementById('save-chip')
+  if (chip) chip.textContent = chip.classList.contains('chip-yellow') ? t('chip_saving') : t('chip_saved')
+  // Modal titles (static HTML)
+  const modalLbls = {
+    'emp-modal-title': t('modal_add_emp'),
+  }
+  for (const [id, txt] of Object.entries(modalLbls)) {
+    const el = document.getElementById(id)
+    if (el && !el._editing) el.textContent = txt
+  }
+  // Modal form labels via data-t
+  document.querySelectorAll('[data-t]').forEach(el => {
+    const k = el.getAttribute('data-t')
+    if (k) el.textContent = t(k)
+  })
+}
+
+// ════════════════════════════════════════════════════
+// STATE
+// ════════════════════════════════════════════════════
+let employees = [], leaveRecords = [], otRecords = []
+let appSettings = {
+  company: { name:'บริษัท เทค ซอลูชั่น จำกัด', taxId:'0105564123456', address:'123 ถนนสุขุมวิท แขวงคลองเตย เขตคลองเตย กรุงเทพมหานคร 10110', phone:'02-123-4567', email:'hr@techsolution.co.th', logo:'💎' },
+  payroll: { payDay:30, periodMonth:'มิถุนายน', periodYear:'2568', ssfRate:5, ssfCap:15000, pfRate:5, pfEnabled:true, workDaysPerMonth:26, workHoursPerDay:8 },
+  leave: { annualLeave:10, sickLeave:30, personalLeave:3, maternityLeave:98 }
+}
+let networkInfo = { local:'', online:null }
+let currentView = 'dashboard'
+let currentLeaveFilter = 'all'
+let lastSaveTime = null
+let clientCount = 1
+let chartTrend = null, chartDept = null
+let editingEmpId = null
+let empSearch = '', empDeptFilter = 'all'
+
+// ════════════════════════════════════════════════════
+// SOCKET.IO
+// ════════════════════════════════════════════════════
+const socket = io()
+
+socket.on('connect', () => setStatus(true))
+socket.on('disconnect', () => setStatus(false))
+
+socket.on('data:init', (data) => {
+  employees    = data.employees    || []
+  leaveRecords = data.leaveRecords || []
+  otRecords    = data.otRecords    || []
+  if (data.settings) appSettings = data.settings
+  if (data._updatedAt) { lastSaveTime = new Date(data._updatedAt); updateLastSave() }
+  document.getElementById('loading-overlay').style.display = 'none'
+  applyTheme(currentTheme)
+  // Sync lang button active state
+  document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'))
+  const lb = document.getElementById('btn-' + currentLang)
+  if (lb) lb.classList.add('active')
+  updateStaticI18n()
+  renderView()
+})
+
+socket.on('data:sync', ({ data, action }) => {
+  employees    = data.employees    || []
+  leaveRecords = data.leaveRecords || []
+  otRecords    = data.otRecords    || []
+  if (data.settings) appSettings = data.settings
+  if (data._updatedAt) { lastSaveTime = new Date(data._updatedAt); updateLastSave() }
+  renderView()
+  showToast('🔄 ซิงค์: ' + action, 'sync')
+})
+
+socket.on('data:saved', ({ action, savedAt }) => {
+  if (savedAt) { lastSaveTime = new Date(savedAt); updateLastSave() }
+  setSaveStatus('saved', action)
+})
+
+socket.on('clients:count', (n) => {
+  clientCount = n
+  const chip = document.getElementById('clients-chip')
+  chip.style.display = 'inline-flex'
+  chip.textContent = '🖥️ ' + n + ' ' + t('unit_devices')
+  const el = document.getElementById('net-clients-val')
+  if (el) el.textContent = n + ' ' + t('unit_devices')
+})
+
+socket.on('network:info', (info) => {
+  networkInfo = info
+  updateNetworkUI()
+})
+
+// ════════════════════════════════════════════════════
+// HELPERS
+// ════════════════════════════════════════════════════
+const TZ = 'Asia/Bangkok'
+const todayTH = () => new Date().toLocaleDateString('en-CA', { timeZone: TZ })
+const empById = id => employees.find(e => e.id === id)
+const nameOf  = id => { const e = empById(id); return e ? (e.name || '?') : (id || '?') }
+const fmt     = n  => Number(n||0).toLocaleString('th-TH')
+const fmtFull = n  => Number(n||0).toLocaleString('th-TH', {minimumFractionDigits:2, maximumFractionDigits:2})
+const uid     = () => Date.now().toString(36) + Math.random().toString(36).slice(2,6)
+function avatarColor(name) {
+  const cols = ['#4f46e5','#7c3aed','#0ea5e9','#10b981','#f59e0b','#ef4444','#ec4899','#06b6d4']
+  let h = 0; for (const c of (name||'')) h += c.charCodeAt(0)
+  return cols[h % cols.length]
+}
+function deptBadge(dept) {
+  const map = {IT:'badge-it',HR:'badge-hr',Finance:'badge-fin',Marketing:'badge-mkt',Sales:'badge-sales',Operations:'badge-ops'}
+  return `<span class="badge ${map[dept]||'chip-gray'}">${dept}</span>`
+}
+function statusBadge(s) {
+  if (s==='active')   return `<span class="badge badge-active">${t('st_active')}</span>`
+  if (s==='inactive') return `<span class="badge badge-inactive">${t('st_inactive')}</span>`
+  if (s==='approved') return `<span class="badge badge-approved">${t('st_approved')}</span>`
+  if (s==='rejected') return `<span class="badge badge-rejected">${t('st_rejected')}</span>`
+  return `<span class="badge badge-pending">${t('st_pending')}</span>`
+}
+function leaveTypeBadge(t) {
+  const m = {'ลาป่วย':'background:#fee2e2;color:#dc2626','ลากิจ':'background:#fef3c7;color:#b45309','ลาพักร้อน':'background:#dbeafe;color:#2563eb','ลาคลอด':'background:#fce7f3;color:#9d174d'}
+  return `<span style="${m[t]||'background:#f1f5f9;color:#64748b'};padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700">${t}</span>`
+}
+
+// ════════════════════════════════════════════════════
+// PAYROLL CALCULATIONS
+// ════════════════════════════════════════════════════
+function calcSSF(salary) {
+  const rate = (appSettings.payroll?.ssfRate || 5) / 100
+  const cap  = appSettings.payroll?.ssfCap   || 15000
+  return Math.min(Math.round(salary * rate), Math.round(cap * rate))
+}
+function calcPF(salary) {
+  if (!appSettings.payroll?.pfEnabled) return 0
+  return Math.round(salary * (appSettings.payroll?.pfRate || 5) / 100)
+}
+function calcOtPay(empId) {
+  const emp = empById(empId); if (!emp) return 0
+  const wd = appSettings.payroll?.workDaysPerMonth || 26
+  const wh = appSettings.payroll?.workHoursPerDay  || 8
+  const hourly = emp.salary / wd / wh
+  return Math.round(
+    otRecords
+      .filter(o => o.empId === empId && o.status === 'approved')
+      .reduce((s, o) => s + o.hours * parseFloat(o.type) * hourly, 0)
+  )
+}
+function getAllowance(dept) {
+  const m = {IT:3000, Sales:5000, Marketing:4000, Finance:2500, HR:2000, Operations:2000}
+  return m[dept] || 2000
+}
+function calcTax(gross) {
+  const annual  = gross * 12
+  const ded     = Math.min(annual * 0.5, 100000) + 60000
+  const taxable = Math.max(0, annual - ded)
+  const b = [[0,150000,0],[150000,300000,.05],[300000,500000,.10],[500000,750000,.15],[750000,1000000,.20],[1000000,2000000,.25],[2000000,5000000,.30],[5000000,Infinity,.35]]
+  let tax = 0
+  for (const [lo,hi,r] of b) if (taxable > lo) tax += (Math.min(taxable,hi) - lo) * r
+  return Math.round(tax / 12)
+}
+function buildPayroll() {
+  return employees.filter(e => e.status === 'active').map(emp => {
+    const salary    = emp.salary || 0
+    const otPay     = calcOtPay(emp.id)
+    const allowance = getAllowance(emp.dept)
+    const gross     = salary + otPay + allowance
+    const ssf       = calcSSF(salary)
+    const tax       = calcTax(gross)
+    const pf        = calcPF(salary)
+    const net       = gross - ssf - tax - pf
+    return { ...emp, otPay, allowance, gross, ssf, tax, pf, net }
+  })
+}
+
+// ════════════════════════════════════════════════════
+// EMIT
+// ════════════════════════════════════════════════════
+function emitUpdate(action) {
+  setSaveStatus('saving')
+  socket.emit('data:update', { data: { employees, leaveRecords, otRecords, settings: appSettings }, action })
+}
+
+// ════════════════════════════════════════════════════
+// UI STATE
+// ════════════════════════════════════════════════════
+function setStatus(ok) {
+  document.getElementById('status-dot').className = ok ? '' : 'off'
+  document.getElementById('status-text').textContent = ok ? t('status_connected') : t('status_disconnected')
+  const el = document.getElementById('net-status-val')
+  if (el) el.textContent = ok ? '🟢 ' + t('status_connected') : '🔴 ' + t('status_disconnected')
+}
+function setSaveStatus(state, action) {
+  const chip = document.getElementById('save-chip')
+  if (state === 'saving') {
+    chip.className = 'chip chip-yellow'; chip.textContent = t('chip_saving')
+  } else {
+    chip.className = 'chip chip-green'; chip.textContent = t('chip_saved')
+    if (action && action !== 'refresh') showToast('✅ ' + action, 'success')
+  }
+}
+function updateLastSave() {
+  if (!lastSaveTime) return
+  const diff = Math.floor((Date.now() - lastSaveTime) / 1000)
+  let txt
+  if (diff < 60)        txt = 'เมื่อกี้'
+  else if (diff < 3600) txt = Math.floor(diff/60) + ' นาทีที่แล้ว'
+  else                  txt = lastSaveTime.toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit',timeZone:TZ}) + ' น.'
+  document.getElementById('last-save').textContent = txt
+  const el = document.getElementById('net-lastsave-val')
+  if (el) el.textContent = lastSaveTime.toLocaleString('th-TH',{timeZone:TZ})
+}
+setInterval(updateLastSave, 30000)
+
+function refreshData() {
+  const icon = document.getElementById('refresh-icon')
+  icon.className = 'spin'; icon.textContent = '🔄'
+  socket.emit('request:refresh')
+  setTimeout(() => { icon.className = ''; icon.textContent = '🔄' }, 2000)
+}
+function showToast(msg, type='success') {
+  const c = document.getElementById('toast-container')
+  const t = document.createElement('div')
+  t.className = 'toast toast-' + type
+  t.textContent = msg
+  c.appendChild(t)
+  setTimeout(() => {
+    t.style.cssText += 'opacity:0;transform:translateX(100%);transition:.3s'
+    setTimeout(() => t.remove(), 300)
+  }, 3500)
+}
+function openModal(id)  { document.getElementById(id).classList.add('open') }
+function closeModal(id) { document.getElementById(id).classList.remove('open') }
+function openNetworkModal() { openModal('net-modal'); updateNetworkUI() }
+function updateNetworkUI() {
+  const lan = networkInfo.local || 'http://localhost:3000'
+  document.getElementById('net-lan-url').textContent    = lan
+  document.getElementById('net-online-url').textContent = networkInfo.online || t('net_creating')
+  const qb = 'https://api.qrserver.com/v1/create-qr-code/?size=140x140&data='
+  document.getElementById('net-lan-qr').src = qb + encodeURIComponent(lan)
+  const onlineQR = document.getElementById('net-online-qr')
+  if (networkInfo.online) {
+    onlineQR.src = qb + encodeURIComponent(networkInfo.online)
+    onlineQR.style.display = ''
+  } else {
+    onlineQR.src = ''
+    onlineQR.style.display = 'none'
+  }
+}
+function copyURL(elId) {
+  const txt = document.getElementById(elId).textContent
+  navigator.clipboard.writeText(txt).then(() => showToast(t('copied_url'),'info'))
+}
+
+// Click backdrop to close
+document.querySelectorAll('.modal-backdrop').forEach(bd =>
+  bd.addEventListener('click', e => { if (e.target === bd) bd.classList.remove('open') })
+)
+
+// ════════════════════════════════════════════════════
+// NAVIGATION
+// ════════════════════════════════════════════════════
+const pageTitles = {
+  dashboard: () => [t('pt_dashboard'), t('ps_dashboard')],
+  employees: () => [t('pt_employees'), t('ps_employees')],
+  payroll:   () => [t('pt_payroll'),   t('ps_payroll')],
+  leave:     () => [t('pt_leave'),     t('ps_leave')],
+  ot:        () => [t('pt_ot'),        t('ps_ot')],
+  reports:   () => [t('pt_reports'),   t('ps_reports')],
+  settings:  () => [t('pt_settings'),  t('ps_settings')],
+}
+function navigate(view) {
+  currentView = view
+  document.querySelectorAll('.sb-item').forEach(el => el.classList.remove('active'))
+  document.getElementById('nav-' + view)?.classList.add('active')
+  const fn = pageTitles[view]
+  const [pT, pS] = fn ? fn() : [view, '']
+  document.getElementById('hdr-title').textContent = pT
+  document.getElementById('hdr-sub').textContent   = pS
+  renderView()
+}
+function renderView() {
+  if      (currentView === 'dashboard') renderDashboard()
+  else if (currentView === 'employees') renderEmployees()
+  else if (currentView === 'payroll')   renderPayroll()
+  else if (currentView === 'leave')     renderLeave()
+  else if (currentView === 'ot')        renderOT()
+  else if (currentView === 'reports')   renderReports()
+  else if (currentView === 'settings')  renderSettings()
+}
+
+// ════════════════════════════════════════════════════
+// DASHBOARD
+// ════════════════════════════════════════════════════
+function renderDashboard() {
+  const pr = buildPayroll()
+  const totGross = pr.reduce((s,e)=>s+e.gross,0)
+  const totOT    = pr.reduce((s,e)=>s+e.otPay,0)
+  const totTax   = pr.reduce((s,e)=>s+e.tax,0)
+  const totSSF   = pr.reduce((s,e)=>s+e.ssf,0)
+  const totNet   = pr.reduce((s,e)=>s+e.net,0)
+  const pending  = leaveRecords.filter(l=>l.status==='pending').length
+
+  const deptMap = {}
+  pr.forEach(e => { deptMap[e.dept] = (deptMap[e.dept]||0) + e.gross })
+
+  const mo = ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.']
+  const cm = parseInt(new Date().toLocaleDateString('en-CA',{timeZone:TZ}).split('-')[1]) - 1
+  const tLabels = [], tData = []
+  for (let i=5;i>=0;i--) {
+    tLabels.push(mo[(cm-i+12)%12])
+    tData.push(i===0 ? totGross : Math.round(totGross*(0.85+Math.random()*0.2)))
+  }
+
+  document.getElementById('content').innerHTML = `<div class="view">
+<div class="grid4" style="margin-bottom:16px">
+  <div class="kpi-card g1"><span class="icon">👥</span><h3>${t('kpi_employees')}</h3><div class="val">${employees.length}</div><div class="sub">${t('kpi_active_sub').replace('{n}',employees.filter(e=>e.status==='active').length)}</div></div>
+  <div class="kpi-card g2"><span class="icon">💰</span><h3>${t('kpi_gross')}</h3><div class="val">฿${fmt(totGross)}</div><div class="sub">${t('unit_month')}</div></div>
+  <div class="kpi-card g3"><span class="icon">⏰</span><h3>${t('kpi_ot')}</h3><div class="val">฿${fmt(totOT)}</div><div class="sub">${t('unit_month')}</div></div>
+  <div class="kpi-card g4"><span class="icon">📋</span><h3>${t('kpi_tax')}</h3><div class="val">฿${fmt(totTax)}</div><div class="sub">${t('unit_month')}</div></div>
+</div>
+<div class="grid4" style="margin-bottom:20px">
+  <div class="kpi-card g5"><span class="icon">🏛️</span><h3>${t('kpi_ssf')}</h3><div class="val">฿${fmt(totSSF)}</div><div class="sub">${t('unit_month')}</div></div>
+  <div class="kpi-card g6"><span class="icon">✅</span><h3>${t('kpi_net')}</h3><div class="val">฿${fmt(totNet)}</div><div class="sub">${t('unit_month')}</div></div>
+  <div class="kpi-card" style="background:linear-gradient(135deg,#0f766e,#0d9488)"><span class="icon">📅</span><h3>${t('kpi_leave_pend')}</h3><div class="val">${pending}</div><div class="sub">${t('unit_req')}</div></div>
+  <div class="kpi-card" style="background:linear-gradient(135deg,#1d4ed8,#2563eb)"><span class="icon">🏢</span><h3>${t('kpi_depts')}</h3><div class="val">${Object.keys(deptMap).length}</div><div class="sub">${t('unit_dept')}</div></div>
+</div>
+<div class="grid2" style="margin-bottom:16px">
+  <div class="card"><div class="section-title">${t('chart_trend')}</div><canvas id="chart-trend" height="180"></canvas></div>
+  <div class="card"><div class="section-title">${t('chart_dept')}</div><canvas id="chart-dept" height="180"></canvas></div>
+</div>
+<div class="card">
+  <div class="section-hdr"><div class="section-title" style="margin-bottom:0">${t('top5')}</div></div>
+  <div class="tbl-wrap"><table>
+    <thead><tr><th>${t('col_emp')}</th><th>${t('col_dept')}</th><th>${t('col_salary')}</th><th>${t('col_ot')}</th><th>${t('col_net')}</th></tr></thead>
+    <tbody>${pr.sort((a,b)=>b.net-a.net).slice(0,5).map(e=>`
+    <tr>
+      <td><div class="td-name"><div class="avatar" style="background:${avatarColor(e.name)}">${e.name[0]}</div>${e.name}</div></td>
+      <td>${deptBadge(e.dept)}</td>
+      <td style="font-weight:700">฿${fmt(e.salary)}</td>
+      <td style="color:#10b981;font-weight:600">฿${fmt(e.otPay)}</td>
+      <td style="font-weight:800;color:#4f46e5">฿${fmt(e.net)}</td>
+    </tr>`).join('')}</tbody>
+  </table></div>
+</div></div>`
+
+  requestAnimationFrame(() => {
+    if (chartTrend) { chartTrend.destroy(); chartTrend = null }
+    if (chartDept)  { chartDept.destroy();  chartDept  = null }
+    const ct = document.getElementById('chart-trend')
+    const cd = document.getElementById('chart-dept')
+    if (ct) chartTrend = new Chart(ct, {
+      type:'line',
+      data:{ labels:tLabels, datasets:[{ label:'รายได้รวม', data:tData, borderColor:'#4f46e5', backgroundColor:'rgba(79,70,229,.1)', fill:true, tension:.4, pointBackgroundColor:'#4f46e5', pointRadius:5 }] },
+      options:{ responsive:true, plugins:{ legend:{display:false} }, scales:{ y:{ ticks:{ callback:v=>'฿'+fmt(v) } } } }
+    })
+    const depts = Object.keys(deptMap)
+    const cols = ['#4f46e5','#0ea5e9','#10b981','#f59e0b','#ef4444','#8b5cf6']
+    if (cd) chartDept = new Chart(cd, {
+      type:'doughnut',
+      data:{ labels:depts, datasets:[{ data:depts.map(d=>deptMap[d]), backgroundColor:cols.slice(0,depts.length), borderWidth:0 }] },
+      options:{ responsive:true, plugins:{ legend:{ position:'bottom', labels:{ font:{family:'Sarabun'} } } }, cutout:'65%' }
+    })
+  })
+}
+
+// ════════════════════════════════════════════════════
+// EMPLOYEES
+// ════════════════════════════════════════════════════
+function renderEmployees() {
+  const depts = [...new Set(employees.map(e=>e.dept))]
+  let filtered = employees
+  if (empSearch) filtered = filtered.filter(e =>
+    e.name.includes(empSearch)||e.id.includes(empSearch)||(e.pos||'').includes(empSearch)||(e.email||'').includes(empSearch))
+  if (empDeptFilter !== 'all') filtered = filtered.filter(e => e.dept === empDeptFilter)
+
+  document.getElementById('content').innerHTML = `<div class="view">
+<div class="toolbar">
+  <input placeholder="${t('emp_search_ph')}" style="max-width:280px" oninput="empSearch=this.value;renderEmployees()" value="${escHtml(empSearch)}">
+  <select onchange="empDeptFilter=this.value;renderEmployees()">
+    <option value="all">${t('all_depts')}</option>
+    ${depts.map(d=>`<option value="${d}"${d===empDeptFilter?' selected':''}>${d}</option>`).join('')}
+  </select>
+  <div class="spacer"></div>
+  <button class="btn btn-outline" onclick="exportEmployeesCSV()">${t('btn_export')}</button>
+  <button class="btn btn-primary" onclick="openEmpModal()">${t('btn_add_emp')}</button>
+</div>
+<div class="card">
+  <div class="tbl-wrap"><table>
+    <thead><tr><th>${t('col_code')}</th><th>${t('col_name')}</th><th>${t('col_dept')}</th><th>${t('col_pos')}</th><th>${t('col_salary')}</th><th>${t('col_start')}</th><th>${t('col_status')}</th><th>${t('col_manage')}</th></tr></thead>
+    <tbody>${filtered.length===0?`<tr><td colspan="8"><div class="empty-state"><div class="icon">👤</div><p>${t('no_employees')}</p></div></td></tr>`:
+    filtered.map(e=>`<tr>
+      <td style="font-family:monospace;font-weight:600;color:#64748b">${e.id}</td>
+      <td><div class="td-name"><div class="avatar" style="background:${avatarColor(e.name)}">${e.name[0]}</div>
+        <div><div style="font-weight:600">${e.name}</div><div style="font-size:11px;color:#94a3b8">${e.email||''}</div></div></div></td>
+      <td>${deptBadge(e.dept)}</td>
+      <td>${e.pos||'-'}</td>
+      <td style="font-weight:700;color:#4f46e5">฿${fmt(e.salary)}</td>
+      <td style="color:#64748b">${e.start||'-'}</td>
+      <td>${statusBadge(e.status)}</td>
+      <td><div style="display:flex;gap:6px">
+        <button class="btn btn-outline btn-xs" onclick="openEmpModal('${e.id}')">${t('btn_edit')}</button>
+        <button class="btn btn-danger btn-xs" onclick="deleteEmployee('${e.id}')">🗑️</button>
+      </div></td>
+    </tr>`).join('')}</tbody>
+  </table></div>
+  <div style="padding:12px 0 0;font-size:12px;color:#94a3b8">${t('show_n').replace('{a}',filtered.length).replace('{b}',employees.length)}</div>
+</div></div>`
+}
+
+function openEmpModal(id) {
+  editingEmpId = id || null
+  const emp = id ? empById(id) : null
+  document.getElementById('emp-modal-title').textContent = emp ? t('modal_edit_emp') : t('modal_add_emp')
+  const parts = emp ? (emp.name||'').split(' ') : ['','']
+  const fn = parts[0]||'', ln = parts.slice(1).join(' ')||''
+  document.getElementById('ef-id').value     = emp ? emp.id     : 'EMP' + String(employees.length+1).padStart(3,'0')
+  document.getElementById('ef-fname').value  = fn
+  document.getElementById('ef-lname').value  = ln
+  document.getElementById('ef-dept').value   = emp?.dept    || 'IT'
+  document.getElementById('ef-pos').value    = emp?.pos     || ''
+  document.getElementById('ef-salary').value = emp?.salary  || ''
+  document.getElementById('ef-start').value  = emp?.start   || ''
+  document.getElementById('ef-email').value  = emp?.email   || ''
+  document.getElementById('ef-phone').value  = emp?.phone   || ''
+  document.getElementById('ef-pid').value    = emp?.pid     || ''
+  document.getElementById('ef-bank').value   = emp?.bank    || 'KBank'
+  document.getElementById('ef-acc').value    = emp?.acc     || ''
+  document.getElementById('ef-status').value = emp?.status  || 'active'
+  document.getElementById('ef-id').disabled  = !!emp
+  openModal('emp-modal')
+}
+function saveEmployee() {
+  const id     = document.getElementById('ef-id').value.trim()
+  const fname  = document.getElementById('ef-fname').value.trim()
+  const lname  = document.getElementById('ef-lname').value.trim()
+  const salary = parseFloat(document.getElementById('ef-salary').value)
+  if (!id||!fname||!lname||!salary) { showToast(t('err_required'),'error'); return }
+  const emp = {
+    id, name: fname + ' ' + lname,
+    dept:   document.getElementById('ef-dept').value,
+    pos:    document.getElementById('ef-pos').value.trim(),
+    salary, status: document.getElementById('ef-status').value,
+    start:  document.getElementById('ef-start').value,
+    email:  document.getElementById('ef-email').value.trim(),
+    phone:  document.getElementById('ef-phone').value.trim(),
+    pid:    document.getElementById('ef-pid').value.trim(),
+    bank:   document.getElementById('ef-bank').value,
+    acc:    document.getElementById('ef-acc').value.trim(),
+  }
+  if (editingEmpId) {
+    const idx = employees.findIndex(e=>e.id===editingEmpId)
+    if (idx>=0) employees[idx] = emp
+  } else {
+    if (employees.find(e=>e.id===id)) { showToast(t('err_dup_id'),'error'); return }
+    employees.push(emp)
+  }
+  emitUpdate((editingEmpId?'แก้ไข':'เพิ่ม') + 'พนักงาน: '+emp.name)
+  closeModal('emp-modal')
+  renderEmployees()
+}
+function deleteEmployee(id) {
+  const emp = empById(id)
+  if (!confirm(t('del_emp_confirm').replace('{n}', emp?.name||id))) return
+  employees = employees.filter(e=>e.id!==id)
+  emitUpdate('ลบพนักงาน: '+(emp?.name||id))
+  renderEmployees()
+}
+
+// ════════════════════════════════════════════════════
+// PAYROLL
+// ════════════════════════════════════════════════════
+function renderPayroll() {
+  const pr = buildPayroll()
+  const totGross = pr.reduce((s,e)=>s+e.gross,0)
+  const totTax   = pr.reduce((s,e)=>s+e.tax,0)
+  const totNet   = pr.reduce((s,e)=>s+e.net,0)
+  const totSSF   = pr.reduce((s,e)=>s+e.ssf,0)
+  const totPF    = pr.reduce((s,e)=>s+e.pf,0)
+  const pp = appSettings.payroll
+
+  document.getElementById('content').innerHTML = `<div class="view">
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px">
+  <div style="font-size:15px;font-weight:600;color:#64748b">${t('period_lbl')} <strong style="color:#4f46e5">${pp.periodMonth} ${pp.periodYear}</strong> · ${t('pay_day_lbl')} ${pp.payDay} ${t('of_month')}</div>
+  <div style="display:flex;gap:10px">
+    <button class="btn btn-outline" onclick="exportPayrollCSV()">${t('btn_export')}</button>
+    <button class="btn btn-outline" onclick="exportBankCSV()">${t('btn_bank')}</button>
+  </div>
+</div>
+<div class="grid4" style="margin-bottom:16px">
+  <div class="kpi-card g1"><span class="icon">👥</span><h3>${t('kpi_count')}</h3><div class="val">${pr.length}</div><div class="sub">${t('unit_people')}</div></div>
+  <div class="kpi-card g2"><span class="icon">💵</span><h3>${t('kpi_gross_pay')}</h3><div class="val">฿${fmt(totGross)}</div><div class="sub">${t('unit_thb')}</div></div>
+  <div class="kpi-card g4"><span class="icon">📋</span><h3>${t('kpi_tax_pay')}</h3><div class="val">฿${fmt(totTax)}</div><div class="sub">${t('unit_thb')}</div></div>
+  <div class="kpi-card g3"><span class="icon">✅</span><h3>${t('kpi_net_pay')}</h3><div class="val">฿${fmt(totNet)}</div><div class="sub">${t('unit_thb')}</div></div>
+</div>
+<div class="card">
+  <div class="tbl-wrap"><table>
+    <thead><tr><th>${t('col_emp')}</th><th>${t('col_dept')}</th><th>${t('col_salary')}</th><th>${t('col_ot')}</th><th>${t('col_allow')}</th><th>${t('kpi_gross_pay')}</th><th>${t('col_ssf')}</th><th>${t('col_tax')}</th><th>${t('col_pf')}</th><th>${t('col_net')}</th><th>${t('col_slip')}</th></tr></thead>
+    <tbody>${pr.map(e=>`<tr>
+      <td><div class="td-name"><div class="avatar" style="background:${avatarColor(e.name)}">${e.name[0]}</div>${e.name}</div></td>
+      <td>${deptBadge(e.dept)}</td>
+      <td>฿${fmt(e.salary)}</td>
+      <td style="color:#10b981;font-weight:600">฿${fmt(e.otPay)}</td>
+      <td style="color:#f59e0b">฿${fmt(e.allowance)}</td>
+      <td style="font-weight:700">฿${fmt(e.gross)}</td>
+      <td style="color:#ef4444">-฿${fmt(e.ssf)}</td>
+      <td style="color:#ef4444">-฿${fmt(e.tax)}</td>
+      <td style="color:#ef4444">-฿${fmt(e.pf)}</td>
+      <td style="font-weight:800;color:#4f46e5;font-size:14px">฿${fmt(e.net)}</td>
+      <td><button class="btn btn-outline btn-xs" onclick="showPayslip('${e.id}')">📄</button></td>
+    </tr>`).join('')}</tbody>
+    <tfoot><tr style="background:#f8fafc;font-weight:800">
+      <td colspan="2">${t('row_total')}</td>
+      <td>฿${fmt(pr.reduce((s,e)=>s+e.salary,0))}</td>
+      <td style="color:#10b981">฿${fmt(pr.reduce((s,e)=>s+e.otPay,0))}</td>
+      <td>฿${fmt(pr.reduce((s,e)=>s+e.allowance,0))}</td>
+      <td>฿${fmt(totGross)}</td>
+      <td style="color:#ef4444">-฿${fmt(totSSF)}</td>
+      <td style="color:#ef4444">-฿${fmt(totTax)}</td>
+      <td style="color:#ef4444">-฿${fmt(totPF)}</td>
+      <td style="color:#4f46e5;font-size:15px">฿${fmt(totNet)}</td>
+      <td></td>
+    </tr></tfoot>
+  </table></div>
+</div></div>`
+}
+
+function showPayslip(empId) {
+  const pr = buildPayroll()
+  const e  = pr.find(p=>p.id===empId); if (!e) return
+  const co = appSettings.company
+  const pp = appSettings.payroll
+  document.getElementById('payslip-content').innerHTML = `
+<div class="payslip">
+  <div class="payslip-hdr">
+    <div class="payslip-logo">${co.logo||'💎'}</div>
+    <div class="payslip-company">${co.name}</div>
+    <div class="payslip-sub">เลขที่ผู้เสียภาษี: ${co.taxId} | โทร: ${co.phone}</div>
+    <div class="payslip-sub">${co.address}</div>
+  </div>
+  <div class="payslip-period">ใบรับรองเงินเดือน — ${pp.periodMonth} ${pp.periodYear}</div>
+  <div class="payslip-info">
+    <div><strong>รหัสพนักงาน:</strong> ${e.id}</div>
+    <div><strong>ชื่อ-สกุล:</strong> ${e.name}</div>
+    <div><strong>แผนก:</strong> ${e.dept}</div>
+    <div><strong>ตำแหน่ง:</strong> ${e.pos||'-'}</div>
+    <div><strong>ธนาคาร:</strong> ${e.bank||'-'}</div>
+    <div><strong>เลขบัญชี:</strong> ${e.acc||'-'}</div>
+    <div><strong>วันเริ่มงาน:</strong> ${e.start||'-'}</div>
+    <div><strong>วันที่จ่าย:</strong> ${pp.payDay} ${pp.periodMonth} ${pp.periodYear}</div>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+    <div>
+      <p style="font-weight:700;color:#059669;margin-bottom:8px">รายได้</p>
+      <table class="payslip-table">
+        <thead><tr><th>รายการ</th><th>จำนวน</th></tr></thead>
+        <tbody>
+          <tr><td>เงินเดือน</td><td>฿${fmt(e.salary)}</td></tr>
+          <tr><td>ค่าล่วงเวลา (OT)</td><td>฿${fmt(e.otPay)}</td></tr>
+          <tr><td>เบี้ยเลี้ยง</td><td>฿${fmt(e.allowance)}</td></tr>
+          <tr style="background:#f0fdf4;font-weight:800"><td>รายได้รวม</td><td>฿${fmt(e.gross)}</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div>
+      <p style="font-weight:700;color:#dc2626;margin-bottom:8px">รายการหัก</p>
+      <table class="payslip-table">
+        <thead><tr><th>รายการ</th><th>จำนวน</th></tr></thead>
+        <tbody>
+          <tr><td>ประกันสังคม (${pp.ssfRate}%)</td><td>฿${fmt(e.ssf)}</td></tr>
+          <tr><td>ภาษีเงินได้ บุคคลธรรมดา</td><td>฿${fmt(e.tax)}</td></tr>
+          <tr><td>กองทุนสำรองเลี้ยงชีพ (${pp.pfRate}%)</td><td>฿${fmt(e.pf)}</td></tr>
+          <tr style="background:#fef2f2;font-weight:800"><td>หักรวม</td><td>฿${fmt(e.ssf+e.tax+e.pf)}</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="payslip-net">
+    <p>เงินที่ได้รับสุทธิ (Net Pay)</p>
+    <div class="amount">฿${fmtFull(e.net)}</div>
+    <p style="font-size:12px;margin-top:6px">หากมีข้อสงสัยกรุณาติดต่อ HR · ${co.email}</p>
+  </div>
+</div>`
+  openModal('payslip-modal')
+}
+
+// ════════════════════════════════════════════════════
+// LEAVE
+// ════════════════════════════════════════════════════
+function renderLeave() {
+  const fil = currentLeaveFilter
+  const rec = fil==='all' ? leaveRecords : leaveRecords.filter(l=>l.status===fil)
+
+  document.getElementById('content').innerHTML = `<div class="view">
+<div class="grid4" style="margin-bottom:16px">
+  <div class="kpi-card g1"><span class="icon">📅</span><h3>${t('lv_all')}</h3><div class="val">${leaveRecords.length}</div><div class="sub">${t('unit_req')}</div></div>
+  <div class="kpi-card g4"><span class="icon">⏳</span><h3>${t('lv_pending')}</h3><div class="val">${leaveRecords.filter(l=>l.status==='pending').length}</div><div class="sub">${t('unit_req')}</div></div>
+  <div class="kpi-card g3"><span class="icon">✅</span><h3>${t('lv_approved')}</h3><div class="val">${leaveRecords.filter(l=>l.status==='approved').length}</div><div class="sub">${t('unit_req')}</div></div>
+  <div class="kpi-card g5"><span class="icon">❌</span><h3>${t('lv_rejected')}</h3><div class="val">${leaveRecords.filter(l=>l.status==='rejected').length}</div><div class="sub">${t('unit_req')}</div></div>
+</div>
+<div class="toolbar">
+  <div style="display:flex;gap:8px;flex-wrap:wrap">
+    ${[['all',t('lv_all')],['pending',t('lv_pending')],['approved',t('lv_approved')],['rejected',t('lv_rejected')]].map(([v,l])=>
+      `<button class="btn ${fil===v?'btn-primary':'btn-outline'}" onclick="currentLeaveFilter='${v}';renderLeave()">${l}</button>`).join('')}
+  </div>
+  <div class="spacer"></div>
+  <button class="btn btn-outline" onclick="exportLeaveCSV()">${t('btn_export_lv')}</button>
+  <button class="btn btn-primary" onclick="openLeaveModal()">${t('btn_add_leave')}</button>
+</div>
+<div class="card">
+  <div class="tbl-wrap"><table>
+    <thead><tr><th>${t('col_emp')}</th><th>${t('col_lv_type')}</th><th>${t('col_lv_start')}</th><th>${t('col_lv_end')}</th><th>${t('col_lv_days')}</th><th>${t('col_lv_reason')}</th><th>${t('col_status')}</th><th>${t('col_manage')}</th></tr></thead>
+    <tbody>${rec.length===0?`<tr><td colspan="8"><div class="empty-state"><div class="icon">📅</div><p>${t('no_leave')}</p></div></td></tr>`:
+    rec.map(l=>`<tr>
+      <td><div class="td-name"><div class="avatar" style="background:${avatarColor(nameOf(l.empId))}">${nameOf(l.empId)[0]}</div>${nameOf(l.empId)}</div></td>
+      <td>${leaveTypeBadge(l.type)}</td>
+      <td>${l.start}</td><td>${l.end}</td>
+      <td style="font-weight:700;text-align:center">${l.days}</td>
+      <td style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${l.reason||'-'}</td>
+      <td>${statusBadge(l.status)}</td>
+      <td><div style="display:flex;gap:4px;flex-wrap:wrap">
+        ${l.status==='pending'
+          ?`<button class="btn btn-success btn-xs" onclick="updateLeave('${l.id}','approved')">✅</button>
+            <button class="btn btn-danger btn-xs" onclick="updateLeave('${l.id}','rejected')">❌</button>`
+          :`<button class="btn btn-outline btn-xs" onclick="updateLeave('${l.id}','pending')">↩️</button>`}
+        <button class="btn btn-danger btn-xs" onclick="deleteLeave('${l.id}')">🗑️</button>
+      </div></td>
+    </tr>`).join('')}</tbody>
+  </table></div>
+</div></div>`
+}
+function calcLeaveDays() {
+  const s = document.getElementById('lf-start').value
+  const e = document.getElementById('lf-end').value
+  if (s && e && new Date(e) >= new Date(s))
+    document.getElementById('lf-days').value = Math.round((new Date(e) - new Date(s)) / 86400000) + 1
+}
+function openLeaveModal() {
+  const ae = employees.filter(e=>e.status==='active')
+  document.getElementById('lf-emp').innerHTML = ae.map(e=>`<option value="${e.id}">${e.name}</option>`).join('')
+  const today = todayTH()
+  document.getElementById('lf-start').value = today
+  document.getElementById('lf-end').value   = today
+  document.getElementById('lf-days').value  = 1
+  openModal('leave-modal')
+}
+function saveLeave() {
+  const empId  = document.getElementById('lf-emp').value
+  const type   = document.getElementById('lf-type').value
+  const start  = document.getElementById('lf-start').value
+  const end    = document.getElementById('lf-end').value
+  const reason = document.getElementById('lf-reason').value.trim()
+  if (!empId||!start||!end) { showToast(t('err_fill'),'error'); return }
+  if (new Date(end) < new Date(start)) { showToast(t('err_date'),'error'); return }
+  const days = Math.max(1, Math.round((new Date(end) - new Date(start)) / 86400000) + 1)
+  leaveRecords.push({ id:'LV'+uid(), empId, type, start, end, days, reason, status:'pending', by:'' })
+  emitUpdate('บันทึกการลา: '+nameOf(empId))
+  closeModal('leave-modal')
+  renderLeave()
+}
+function updateLeave(id, status) {
+  const idx = leaveRecords.findIndex(l=>l.id===id); if (idx<0) return
+  leaveRecords[idx].status = status
+  leaveRecords[idx].by = status==='approved' ? (appSettings.company?.name||'HR') : ''
+  emitUpdate(status==='approved'?'อนุมัติการลา: '+nameOf(leaveRecords[idx].empId):'ยกเลิกอนุมัติการลา')
+  renderLeave()
+}
+function deleteLeave(id) {
+  if (!confirm(t('del_leave_confirm'))) return
+  leaveRecords = leaveRecords.filter(l=>l.id!==id)
+  emitUpdate('ลบรายการลา')
+  renderLeave()
+}
+
+// ════════════════════════════════════════════════════
+// OT
+// ════════════════════════════════════════════════════
+function renderOT() {
+  const totPay = employees.reduce((s,e)=>s+calcOtPay(e.id),0)
+  const totHrs = otRecords.filter(o=>o.status==='approved').reduce((s,o)=>s+o.hours,0)
+
+  document.getElementById('content').innerHTML = `<div class="view">
+<div class="grid3" style="margin-bottom:16px">
+  <div class="kpi-card g1"><span class="icon">📋</span><h3>${t('kpi_ot_all')}</h3><div class="val">${otRecords.length}</div><div class="sub">${t('unit_req')}</div></div>
+  <div class="kpi-card g3"><span class="icon">🕐</span><h3>${t('kpi_ot_hrs')}</h3><div class="val">${totHrs}</div><div class="sub">${t('unit_hrs')}</div></div>
+  <div class="kpi-card g4"><span class="icon">💰</span><h3>${t('kpi_ot_pay')}</h3><div class="val">฿${fmt(totPay)}</div><div class="sub">${t('unit_thb')}</div></div>
+</div>
+<div class="toolbar">
+  <div class="spacer"></div>
+  <button class="btn btn-outline" onclick="exportOtCSV()">${t('btn_export_ot')}</button>
+  <button class="btn btn-primary" onclick="openOTModal()">${t('btn_add_ot')}</button>
+</div>
+<div class="card">
+  <div class="tbl-wrap"><table>
+    <thead><tr><th>${t('col_emp')}</th><th>${t('col_ot_date')}</th><th>${t('col_ot_hrs')}</th><th>${t('col_ot_rate')}</th><th>${t('col_ot_pay')}</th><th>${t('col_ot_note')}</th><th>${t('col_status')}</th><th>${t('col_manage')}</th></tr></thead>
+    <tbody>${otRecords.length===0?`<tr><td colspan="8"><div class="empty-state"><div class="icon">⏰</div><p>${t('no_ot')}</p></div></td></tr>`:
+    otRecords.map(o=>{
+      const emp = empById(o.empId)
+      const wd  = appSettings.payroll?.workDaysPerMonth||26
+      const wh  = appSettings.payroll?.workHoursPerDay||8
+      const pay = emp ? Math.round(o.hours * parseFloat(o.type) * emp.salary/wd/wh) : 0
+      return `<tr>
+      <td><div class="td-name"><div class="avatar" style="background:${avatarColor(nameOf(o.empId))}">${nameOf(o.empId)[0]}</div>${nameOf(o.empId)}</div></td>
+      <td>${o.date}</td>
+      <td style="font-weight:700;text-align:center">${o.hours}</td>
+      <td><span class="badge ${parseFloat(o.type)===1.5?'badge-pending':parseFloat(o.type)===2?'badge-approved':'badge-it'}">×${o.type}</span></td>
+      <td style="font-weight:700;color:${o.status==='rejected'?'#94a3b8':'#10b981'}">฿${fmt(pay)}</td>
+      <td style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#64748b">${o.note||'-'}</td>
+      <td>${statusBadge(o.status)}</td>
+      <td><div style="display:flex;gap:4px">
+        ${o.status==='pending'?`<button class="btn btn-success btn-xs" onclick="approveOT('${o.id}')">✅</button>
+          <button class="btn btn-danger btn-xs" onclick="rejectOT('${o.id}')">❌</button>`:''}
+        <button class="btn btn-outline btn-xs" onclick="deleteOT('${o.id}')">🗑️</button>
+      </div></td>
+    </tr>`}).join('')}</tbody>
+  </table></div>
+</div></div>`
+}
+function openOTModal() {
+  const ae = employees.filter(e=>e.status==='active')
+  document.getElementById('of-emp').innerHTML = ae.map(e=>`<option value="${e.id}">${e.name}</option>`).join('')
+  document.getElementById('of-date').value = todayTH()
+  openModal('ot-modal')
+}
+function saveOT() {
+  const empId = document.getElementById('of-emp').value
+  const date  = document.getElementById('of-date').value
+  const hours = parseFloat(document.getElementById('of-hours').value)||0
+  const type  = document.getElementById('of-type').value
+  const note  = document.getElementById('of-note').value.trim()
+  if (!empId||!date||hours<=0) { showToast(t('err_fill'),'error'); return }
+  otRecords.push({ id:'OT'+uid(), empId, date, hours, type, note, status:'pending' })
+  emitUpdate('บันทึก OT: '+nameOf(empId))
+  closeModal('ot-modal')
+  renderOT()
+}
+function approveOT(id) {
+  const idx = otRecords.findIndex(o=>o.id===id); if (idx<0) return
+  otRecords[idx].status = 'approved'
+  emitUpdate('อนุมัติ OT: '+nameOf(otRecords[idx].empId))
+  renderOT()
+}
+function rejectOT(id) {
+  const idx = otRecords.findIndex(o=>o.id===id); if (idx<0) return
+  otRecords[idx].status = 'rejected'
+  emitUpdate('ปฏิเสธ OT: '+nameOf(otRecords[idx].empId))
+  renderOT()
+}
+function deleteOT(id) {
+  if (!confirm(t('del_ot_confirm'))) return
+  otRecords = otRecords.filter(o=>o.id!==id)
+  emitUpdate('ลบรายการ OT')
+  renderOT()
+}
+
+// ════════════════════════════════════════════════════
+// REPORTS
+// ════════════════════════════════════════════════════
+function renderReports() {
+  const reports = [
+    {icon:'💰',title:'รายงานเงินเดือน',desc:'สรุปรายได้/หักทุกคนพร้อมส่งออก',fn:'exportPayrollCSV'},
+    {icon:'📄',title:'สลิปเงินเดือน (CSV)',desc:'ข้อมูลสลิปทุกคนในรูป CSV',fn:'exportPayrollCSV'},
+    {icon:'🏛️',title:'ภาษีเงินได้ (ภงด.1)',desc:'ภาษีหัก ณ ที่จ่ายรายบุคคล',fn:'exportTaxCSV'},
+    {icon:'🏥',title:'ประกันสังคม (สปส.)',desc:'รายการนำส่งสำนักงานประกันสังคม',fn:'exportSSFCSV'},
+    {icon:'⏰',title:'รายงาน OT',desc:'ทำงานล่วงเวลาทั้งหมดพร้อมค่าใช้จ่าย',fn:'exportOtCSV'},
+    {icon:'💼',title:'ต้นทุนพนักงาน',desc:'ต้นทุนรวม (รายได้+SSF นายจ้าง) แยกแผนก',fn:'exportCostCSV'},
+    {icon:'🏦',title:'ไฟล์โอนเงินธนาคาร',desc:'CSV สำหรับอัปโหลดระบบโอนเงินธนาคาร',fn:'exportBankCSV'},
+    {icon:'👥',title:'รายชื่อพนักงาน',desc:'ข้อมูลพนักงานทั้งหมดในระบบ',fn:'exportEmployeesCSV'},
+    {icon:'📅',title:'สถิติการลา',desc:'สรุปการลาแยกตามประเภทและพนักงาน',fn:'exportLeaveCSV'},
+  ]
+  document.getElementById('content').innerHTML = `<div class="view">
+<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px">
+${reports.map(r=>`<div class="report-card">
+  <div class="report-icon">${r.icon}</div>
+  <h3>${r.title}</h3>
+  <p>${r.desc}</p>
+  <button class="btn btn-primary" onclick="${r.fn}()">${t('dl_csv')}</button>
+</div>`).join('')}
+</div></div>`
+}
+
+// ════════════════════════════════════════════════════
+// SETTINGS
+// ════════════════════════════════════════════════════
+function renderSettings() {
+  const co = appSettings.company || {}
+  const pp = appSettings.payroll || {}
+  const lv = appSettings.leave   || {}
+
+  document.getElementById('content').innerHTML = `<div class="view">
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+
+<div class="settings-panel">
+  <h3>${t('s_company')}</h3>
+  <div style="display:flex;flex-direction:column;gap:12px">
+    <div class="form-group"><label>${t('s_coname')}</label><input id="s-coname" value="${escHtml(co.name||'')}"></div>
+    <div class="form-group"><label>${t('s_taxid')}</label><input id="s-taxid" value="${escHtml(co.taxId||'')}"></div>
+    <div class="form-group"><label>${t('s_addr')}</label><textarea id="s-addr">${escHtml(co.address||'')}</textarea></div>
+    <div class="form-group"><label>${t('s_phone')}</label><input id="s-phone" value="${escHtml(co.phone||'')}"></div>
+    <div class="form-group"><label>${t('s_email')}</label><input id="s-email" value="${escHtml(co.email||'')}"></div>
+    <button class="btn btn-primary" onclick="saveSettingsCompany()">${t('s_save_co')}</button>
+  </div>
+</div>
+
+<div class="settings-panel">
+  <h3>${t('s_payroll')}</h3>
+  <div style="display:flex;flex-direction:column;gap:12px">
+    <div class="form-grid">
+      <div class="form-group"><label>${t('s_pmonth')}</label><input id="s-pmonth" value="${escHtml(pp.periodMonth||'')}"></div>
+      <div class="form-group"><label>${t('s_pyear')}</label><input id="s-pyear" value="${escHtml(pp.periodYear||'')}"></div>
+      <div class="form-group"><label>${t('s_payday')}</label><input id="s-payday" type="number" min="1" max="31" value="${pp.payDay||30}"></div>
+      <div class="form-group"><label>${t('s_ssfrate')}</label><input id="s-ssfrate" type="number" step="0.1" value="${pp.ssfRate||5}"></div>
+      <div class="form-group"><label>${t('s_ssfcap')}</label><input id="s-ssfcap" type="number" value="${pp.ssfCap||15000}"></div>
+      <div class="form-group"><label>${t('s_pfrate')}</label><input id="s-pfrate" type="number" step="0.1" value="${pp.pfRate||5}"></div>
+      <div class="form-group"><label>${t('s_wd')}</label><input id="s-wd" type="number" value="${pp.workDaysPerMonth||26}"></div>
+      <div class="form-group"><label>${t('s_wh')}</label><input id="s-wh" type="number" value="${pp.workHoursPerDay||8}"></div>
+    </div>
+    <label class="checkbox-row">
+      <input type="checkbox" id="s-pf" ${pp.pfEnabled?'checked':''}> ${t('s_pf_chk')}
+    </label>
+    <button class="btn btn-primary" onclick="saveSettingsPayroll()">${t('s_save_pr')}</button>
+  </div>
+</div>
+
+<div class="settings-panel">
+  <h3>${t('s_leave')}</h3>
+  <div style="display:flex;flex-direction:column;gap:12px">
+    <div class="form-grid">
+      <div class="form-group"><label>${t('s_al')}</label><input id="s-al" type="number" value="${lv.annualLeave||10}"></div>
+      <div class="form-group"><label>${t('s_sl')}</label><input id="s-sl" type="number" value="${lv.sickLeave||30}"></div>
+      <div class="form-group"><label>${t('s_pl')}</label><input id="s-pl" type="number" value="${lv.personalLeave||3}"></div>
+      <div class="form-group"><label>${t('s_ml')}</label><input id="s-ml" type="number" value="${lv.maternityLeave||98}"></div>
+    </div>
+    <button class="btn btn-primary" onclick="saveSettingsLeave()">${t('s_save_lv')}</button>
+  </div>
+</div>
+
+<div class="settings-panel">
+  <h3>${t('s_net')}</h3>
+  <div class="conn-status-row"><span class="conn-label">${t('s_net_sock')}</span><span class="conn-val">${socket.connected?'🟢 '+t('status_connected'):'🔴 '+t('status_disconnected')}</span></div>
+  <div class="conn-status-row"><span class="conn-label">${t('s_net_devs')}</span><span class="conn-val">${clientCount} ${t('unit_devices')}</span></div>
+  <div class="conn-status-row"><span class="conn-label">${t('s_net_local')}</span><span class="conn-val">http://localhost:3000</span></div>
+  <div class="conn-status-row"><span class="conn-label">${t('s_net_lan')}</span><span class="conn-val">${networkInfo.local||'–'}</span></div>
+  <div class="conn-status-row"><span class="conn-label">${t('s_net_online')}</span><span class="conn-val" style="color:${networkInfo.online?'#059669':'#94a3b8'}">${networkInfo.online||t('s_not_avail')}</span></div>
+  <div style="margin-top:12px">
+    <button class="btn btn-primary" style="width:100%" onclick="openNetworkModal()">${t('s_see_qr')}</button>
+  </div>
+</div>
+
+</div></div>`
+}
+
+function escHtml(s) { return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;') }
+
+function saveSettingsCompany() {
+  appSettings.company = {
+    ...appSettings.company,
+    name:    document.getElementById('s-coname').value.trim(),
+    taxId:   document.getElementById('s-taxid').value.trim(),
+    address: document.getElementById('s-addr').value.trim(),
+    phone:   document.getElementById('s-phone').value.trim(),
+    email:   document.getElementById('s-email').value.trim(),
+  }
+  emitUpdate('บันทึกข้อมูลบริษัท')
+  renderSettings()
+}
+function saveSettingsPayroll() {
+  appSettings.payroll = {
+    ...appSettings.payroll,
+    periodMonth:      document.getElementById('s-pmonth').value.trim(),
+    periodYear:       document.getElementById('s-pyear').value.trim(),
+    payDay:           parseInt(document.getElementById('s-payday').value)||30,
+    ssfRate:          parseFloat(document.getElementById('s-ssfrate').value)||5,
+    ssfCap:           parseFloat(document.getElementById('s-ssfcap').value)||15000,
+    pfRate:           parseFloat(document.getElementById('s-pfrate').value)||5,
+    pfEnabled:        document.getElementById('s-pf').checked,
+    workDaysPerMonth: parseInt(document.getElementById('s-wd').value)||26,
+    workHoursPerDay:  parseInt(document.getElementById('s-wh').value)||8,
+  }
+  emitUpdate('บันทึกตั้งค่าเงินเดือน')
+  renderSettings()
+}
+function saveSettingsLeave() {
+  appSettings.leave = {
+    annualLeave:    parseInt(document.getElementById('s-al').value)||10,
+    sickLeave:      parseInt(document.getElementById('s-sl').value)||30,
+    personalLeave:  parseInt(document.getElementById('s-pl').value)||3,
+    maternityLeave: parseInt(document.getElementById('s-ml').value)||98,
+  }
+  emitUpdate('บันทึกตั้งค่าการลา')
+  renderSettings()
+}
+
+// ════════════════════════════════════════════════════
+// CSV EXPORT
+// ════════════════════════════════════════════════════
+function exportCSV(filename, headers, rows) {
+  const bom = '﻿'
+  const esc = v => '"' + String(v===null||v===undefined?'':v).replace(/"/g,'""') + '"'
+  const content = bom + [headers,...rows].map(r=>r.map(esc).join(',')).join('\n')
+  const blob = new Blob([content], { type:'text/csv;charset=utf-8' })
+  const a = Object.assign(document.createElement('a'), { href:URL.createObjectURL(blob), download:filename })
+  document.body.appendChild(a); a.click(); document.body.removeChild(a)
+  URL.revokeObjectURL(a.href)
+  showToast('⬇️ ดาวน์โหลด ' + filename, 'success')
+}
+function exportPayrollCSV() {
+  const pr = buildPayroll(), pp = appSettings.payroll
+  exportCSV(`payroll_${pp.periodMonth}_${pp.periodYear}.csv`,
+    ['รหัส','ชื่อ-สกุล','แผนก','ตำแหน่ง','เงินเดือน','OT','เบี้ยเลี้ยง','รายได้รวม','SSF','ภาษี','PF','สุทธิ'],
+    pr.map(e=>[e.id,e.name,e.dept,e.pos||'',e.salary,e.otPay,e.allowance,e.gross,e.ssf,e.tax,e.pf,e.net]))
+}
+function exportEmployeesCSV() {
+  exportCSV('employees.csv',
+    ['รหัส','ชื่อ-สกุล','แผนก','ตำแหน่ง','เงินเดือน','สถานะ','วันเริ่มงาน','อีเมล','โทร','ธนาคาร','เลขบัญชี'],
+    employees.map(e=>[e.id,e.name,e.dept,e.pos||'',e.salary,e.status,e.start||'',e.email||'',e.phone||'',e.bank||'',e.acc||'']))
+}
+function exportLeaveCSV() {
+  exportCSV('leave_records.csv',
+    ['รหัส','พนักงาน','ประเภท','วันเริ่ม','วันสิ้นสุด','จำนวนวัน','เหตุผล','สถานะ','อนุมัติโดย'],
+    leaveRecords.map(l=>[l.id,nameOf(l.empId),l.type,l.start,l.end,l.days,l.reason||'',l.status,l.by||'']))
+}
+function exportOtCSV() {
+  const wd = appSettings.payroll?.workDaysPerMonth||26
+  const wh = appSettings.payroll?.workHoursPerDay||8
+  exportCSV('ot_records.csv',
+    ['รหัส','พนักงาน','วันที่','ชั่วโมง','อัตรา','ค่า OT','หมายเหตุ','สถานะ'],
+    otRecords.map(o=>{
+      const emp = empById(o.empId)
+      const pay = emp ? Math.round(o.hours*parseFloat(o.type)*emp.salary/wd/wh) : 0
+      return [o.id,nameOf(o.empId),o.date,o.hours,'×'+o.type,pay,o.note||'',o.status]
+    }))
+}
+function exportTaxCSV() {
+  const pr = buildPayroll(), pp = appSettings.payroll
+  exportCSV(`tax_pnd1_${pp.periodMonth}_${pp.periodYear}.csv`,
+    ['รหัส','ชื่อ-สกุล','รายได้รวม/เดือน','ภาษี/เดือน','ภาษีสะสม/ปี (ประมาณ)'],
+    pr.map(e=>[e.id,e.name,e.gross,e.tax,e.tax*12]))
+}
+function exportSSFCSV() {
+  const pr = buildPayroll(), pp = appSettings.payroll
+  exportCSV(`ssf_${pp.periodMonth}_${pp.periodYear}.csv`,
+    ['รหัส','ชื่อ-สกุล','เงินเดือน','SSF พนักงาน','SSF นายจ้าง','รวมนำส่ง'],
+    pr.map(e=>[e.id,e.name,e.salary,e.ssf,e.ssf,e.ssf*2]))
+}
+function exportCostCSV() {
+  const pr = buildPayroll(), pp = appSettings.payroll
+  exportCSV(`cost_${pp.periodMonth}_${pp.periodYear}.csv`,
+    ['รหัส','ชื่อ-สกุล','แผนก','เงินเดือน','OT','เบี้ยเลี้ยง','SSF นายจ้าง','ต้นทุนรวม'],
+    pr.map(e=>[e.id,e.name,e.dept,e.salary,e.otPay,e.allowance,e.ssf,e.gross+e.ssf]))
+}
+function exportBankCSV() {
+  const pr = buildPayroll(), pp = appSettings.payroll
+  exportCSV('bank_transfer.csv',
+    ['รหัส','ชื่อ-สกุล','ธนาคาร','เลขบัญชี','จำนวนเงิน','สกุลเงิน','หมายเหตุ'],
+    pr.map(e=>[e.id,e.name,e.bank||'',e.acc||'',e.net,'THB',`เงินเดือน ${pp.periodMonth} ${pp.periodYear}`]))
+}
+</script>
+</body>
+</html>
