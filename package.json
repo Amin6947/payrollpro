@@ -4,8 +4,8 @@
   "description": "ระบบบริหารเงินเดือน PayrollPro",
   "main": "main.js",
   "scripts": {
-    "start": "electron .",
-    "start:web": "node server.js",
+    "start": "node server.js",
+    "start:electron": "electron .",
     "build": "electron-builder --win --x64",
     "build-portable": "electron-builder --win portable --x64"
   },
@@ -18,12 +18,7 @@
     "copyright": "Copyright © 2025",
     "win": {
       "icon": "icon.ico",
-      "target": [
-        {
-          "target": "nsis",
-          "arch": ["x64"]
-        }
-      ]
+      "target": [{ "target": "nsis", "arch": ["x64"] }]
     },
     "nsis": {
       "oneClick": false,
@@ -33,12 +28,8 @@
       "shortcutName": "PayrollPro"
     },
     "files": [
-      "main.js",
-      "server.js",
-      "index.html",
-      "payroll.html",
-      "preload.js",
-      "node_modules/**/*"
+      "main.js", "server.js", "index.html",
+      "payroll.html", "preload.js", "node_modules/**/*"
     ]
   },
   "devDependencies": {
