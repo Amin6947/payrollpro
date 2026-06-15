@@ -959,10 +959,10 @@ function updateLastSave() {
   let txt
   if (diff < 60)        txt = 'เมื่อกี้'
   else if (diff < 3600) txt = Math.floor(diff/60) + ' นาทีที่แล้ว'
-  else                  txt = lastSaveTime.toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit',timeZone:TZ}) + ' น.'
+  else                  txt = lastSaveTime.toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit',hour12:false,timeZone:TZ}) + ' น.'
   document.getElementById('last-save').textContent = txt
   const el = document.getElementById('net-lastsave-val')
-  if (el) el.textContent = lastSaveTime.toLocaleString('th-TH',{timeZone:TZ})
+  if (el) el.textContent = lastSaveTime.toLocaleString('th-TH',{hour12:false,timeZone:TZ})
 }
 setInterval(updateLastSave, 30000)
 

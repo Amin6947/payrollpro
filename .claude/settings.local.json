@@ -1,0 +1,32 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(start *)",
+      "Bash(npm --version)",
+      "Bash(Copy-Item *)",
+      "Bash(npm install)",
+      "Bash(npm start *)",
+      "Bash(rm -rf node_modules/electron)",
+      "Bash(npm install *)",
+      "Bash(node node_modules/electron/install.js)",
+      "Bash(ELECTRON_GET_USE_PROXY=false npm_config_electron_mirror=\"https://github.com/electron/electron/releases/download/\" node node_modules/electron/install.js)",
+      "Bash(echo \"Exit: $?\")",
+      "Bash(node -e ' *)",
+      "Bash(ELECTRON_MIRROR=\"https://npmmirror.com/mirrors/electron/\" node node_modules/electron/install.js)",
+      "Bash(echo \"Exit:$?\")",
+      "Bash(node -e \"const pkg=require\\('./node_modules/electron/package.json'\\);console.log\\(pkg.version\\)\")",
+      "Bash(node -e \"require\\('./server'\\)\")",
+      "Bash(curl -s http://localhost:3000/api/data)",
+      "Bash(node -e \"const d=require\\('fs'\\).readFileSync\\('/dev/stdin','utf8'\\);const p=JSON.parse\\(d\\);console.log\\('employees:',p.employees.length,'leave:',p.leaveRecords.length,'OT:',p.otRecords.length\\)\")",
+      "Bash(kill %1)",
+      "Bash(node --check server.js)",
+      "Bash(node --check main.js)",
+      "Bash(timeout 4 node -e ' *)",
+      "Bash(timeout 5 node -e ' *)",
+      "Bash(node *)",
+      "Bash(git init *)",
+      "Bash(git add *)",
+      "Bash(git commit *)"
+    ]
+  }
+}
