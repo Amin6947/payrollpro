@@ -11,7 +11,9 @@ const io         = new Server(httpServer, { cors: { origin: '*', methods: ['GET'
 
 // ─── Config ──────────────────────────────────────────────────
 const PORT      = parseInt(process.env.PORT) || 10000
-const MONGO_URI = process.env.MONGO_URI      || 'mongodb+srv://padchabel_db_user:n5y4b0PViWVLDKol@cluster0.enp6p4e.mongodb.net/payrollpro?retryWrites=true&w=majority&appName=Cluster0'
+try { process.loadEnvFile(path.join(__dirname, '.env')) } catch {}
+const MONGO_URI = process.env.MONGO_URI
+if (!MONGO_URI) { console.error('❌ ไม่พบ MONGO_URI — ใส่ในไฟล์ .env หรือตั้งเป็น Environment Variable'); process.exit(1) }
 
 app.use(express.static(path.join(__dirname)))
 app.use(express.json({ limit: '10mb' }))
@@ -34,19 +36,19 @@ function defaultData() {
       { id:'EMP008', name:'ปิยะ สบายดี',      dept:'Operations',pos:'Operations Supervisor', salary:48000, status:'inactive', start:'2018-07-01', email:'piya@ts.co.th',     phone:'088-901-2345', bank:'KBank',        acc:'890-1-23456-7' },
     ],
     leaveRecords: [
-      { id:'LV001', empId:'EMP001', type:'ลาป่วย',    start:'2568-06-10', end:'2568-06-11', days:2, reason:'ไม่สบาย มีไข้', status:'approved', by:'วิภาดา สุขใจ' },
-      { id:'LV002', empId:'EMP005', type:'ลากิจ',     start:'2568-06-12', end:'2568-06-12', days:1, reason:'ธุระส่วนตัว',   status:'pending',  by:'' },
-      { id:'LV003', empId:'EMP003', type:'ลาพักร้อน', start:'2568-06-15', end:'2568-06-19', days:5, reason:'พักผ่อน',      status:'approved', by:'วิภาดา สุขใจ' },
-      { id:'LV004', empId:'EMP006', type:'ลาป่วย',    start:'2568-06-08', end:'2568-06-08', days:1, reason:'ปวดหัว',       status:'approved', by:'วิภาดา สุขใจ' },
-      { id:'LV005', empId:'EMP004', type:'ลากิจ',     start:'2568-06-20', end:'2568-06-20', days:1, reason:'นัดธนาคาร',    status:'pending',  by:'' },
-      { id:'LV006', empId:'EMP007', type:'ลากิจ',     start:'2568-06-05', end:'2568-06-05', days:1, reason:'ธุระครอบครัว', status:'rejected', by:'วิภาดา สุขใจ' },
+      { id:'LV001', empId:'EMP001', type:'ลาป่วย',    start:'2026-06-10', end:'2026-06-11', days:2, reason:'ไม่สบาย มีไข้', status:'approved', by:'วิภาดา สุขใจ' },
+      { id:'LV002', empId:'EMP005', type:'ลากิจ',     start:'2026-06-12', end:'2026-06-12', days:1, reason:'ธุระส่วนตัว',   status:'pending',  by:'' },
+      { id:'LV003', empId:'EMP003', type:'ลาพักร้อน', start:'2026-06-15', end:'2026-06-19', days:5, reason:'พักผ่อน',      status:'approved', by:'วิภาดา สุขใจ' },
+      { id:'LV004', empId:'EMP006', type:'ลาป่วย',    start:'2026-06-08', end:'2026-06-08', days:1, reason:'ปวดหัว',       status:'approved', by:'วิภาดา สุขใจ' },
+      { id:'LV005', empId:'EMP004', type:'ลากิจ',     start:'2026-06-20', end:'2026-06-20', days:1, reason:'นัดธนาคาร',    status:'pending',  by:'' },
+      { id:'LV006', empId:'EMP007', type:'ลากิจ',     start:'2026-06-05', end:'2026-06-05', days:1, reason:'ธุระครอบครัว', status:'rejected', by:'วิภาดา สุขใจ' },
     ],
     otRecords: [
-      { id:'OT001', empId:'EMP001', date:'2568-06-07', hours:3, type:'1.5', note:'แก้ไขบัก production', status:'approved' },
-      { id:'OT002', empId:'EMP007', date:'2568-06-08', hours:5, type:'2',   note:'Deploy ระบบใหม่',    status:'approved' },
-      { id:'OT003', empId:'EMP005', date:'2568-06-09', hours:2, type:'1.5', note:'งานด่วน',            status:'pending'  },
-      { id:'OT004', empId:'EMP003', date:'2568-06-01', hours:4, type:'2',   note:'ปิดงบเดือน',         status:'approved' },
-      { id:'OT005', empId:'EMP004', date:'2568-06-06', hours:3, type:'1.5', note:'งาน event',          status:'pending'  },
+      { id:'OT001', empId:'EMP001', date:'2026-06-07', hours:3, type:'1.5', note:'แก้ไขบัก production', status:'approved' },
+      { id:'OT002', empId:'EMP007', date:'2026-06-08', hours:5, type:'2',   note:'Deploy ระบบใหม่',    status:'approved' },
+      { id:'OT003', empId:'EMP005', date:'2026-06-09', hours:2, type:'1.5', note:'งานด่วน',            status:'pending'  },
+      { id:'OT004', empId:'EMP003', date:'2026-06-01', hours:4, type:'2',   note:'ปิดงบเดือน',         status:'approved' },
+      { id:'OT005', empId:'EMP004', date:'2026-06-06', hours:3, type:'1.5', note:'งาน event',          status:'pending'  },
     ],
     settings: {
       company: {
@@ -58,12 +60,19 @@ function defaultData() {
         logo: '💎'
       },
       payroll: {
-        payDay: 30, periodMonth: 'มิถุนายน', periodYear: '2568',
+        payDay: 30, periodMonth: 'มิถุนายน', periodYear: '2569',
         ssfRate: 5, ssfCap: 15000, pfRate: 5, pfEnabled: true,
         workDaysPerMonth: 26, workHoursPerDay: 8
       },
       leave: { annualLeave: 10, sickLeave: 30, personalLeave: 3, maternityLeave: 98 }
-    }
+    },
+    users: [
+      { id:'USR001', name:'ผู้ดูแลระบบ', username:'admin', password:'1234', role:'admin' },
+      { id:'USR002', name:'วิภาดา สุขใจ',  username:'hr',    password:'1234', role:'hr'    }
+    ],
+    payrollHistory: [],
+    auditLog: [],
+    bonuses: {}
   }
 }
 
@@ -158,11 +167,41 @@ io.on('connection', async (socket) => {
   })
 })
 
+// ─── Migration ───────────────────────────────────────────────
+async function migrateData() {
+  const data = await loadDB()
+  let changed = false
+  // แก้ปีพ.ศ. ใน periodYear จาก 2568 → 2569
+  if (data.settings?.payroll?.periodYear === '2568') {
+    data.settings.payroll.periodYear = '2569'
+    changed = true
+  }
+  // แก้วันที่ใน leaveRecords จาก 2568-xx-xx → 2026-xx-xx
+  if (data.leaveRecords) {
+    const fixed = data.leaveRecords.map(r => ({
+      ...r,
+      start: (r.start || '').replace(/^2568-/, '2026-'),
+      end:   (r.end   || '').replace(/^2568-/, '2026-'),
+    }))
+    if (JSON.stringify(fixed) !== JSON.stringify(data.leaveRecords)) { data.leaveRecords = fixed; changed = true }
+  }
+  // แก้วันที่ใน otRecords จาก 2568-xx-xx → 2026-xx-xx
+  if (data.otRecords) {
+    const fixed = data.otRecords.map(r => ({
+      ...r,
+      date: (r.date || '').replace(/^2568-/, '2026-'),
+    }))
+    if (JSON.stringify(fixed) !== JSON.stringify(data.otRecords)) { data.otRecords = fixed; changed = true }
+  }
+  if (changed) { await saveDB(data); console.log('✅ Migration: แก้ข้อมูลปี 2568 → 2026/2569 เรียบร้อย') }
+}
+
 // ─── Start ───────────────────────────────────────────────────
 async function main() {
   console.log('🔌 กำลังเชื่อมต่อ MongoDB...')
   await mongoose.connect(MONGO_URI)
   console.log('✅ MongoDB Connected')
+  await migrateData()
 
   await new Promise((resolve) => {
     httpServer.listen(PORT, '0.0.0.0', resolve)

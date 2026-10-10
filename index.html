@@ -258,6 +258,188 @@ html[data-theme=dark] .lang-switcher{background:#0f172a}
 html[data-theme=purple] .lang-btn.active{background:#9333ea}
 html[data-theme=dark] .lang-btn{color:#64748b}
 html[data-theme=dark] .lang-btn.active{background:#4f46e5;color:#fff}
+
+/* ── MOBILE ── */
+#menu-toggle{display:none;align-items:center;justify-content:center;width:38px;height:38px;border-radius:8px;border:none;background:transparent;cursor:pointer;font-size:22px;color:#475569;flex-shrink:0;transition:background .15s;line-height:1}
+#menu-toggle:hover{background:#f1f5f9}
+html[data-theme=dark] #menu-toggle{color:#94a3b8}
+html[data-theme=dark] #menu-toggle:hover{background:#1e293b}
+#sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:899;backdrop-filter:blur(2px)}
+
+@media(max-width:768px){
+  body{display:block;overflow-y:auto;height:auto;min-height:100dvh}
+  #sidebar{position:fixed;left:-280px;top:0;height:100%;width:260px;min-width:260px;z-index:900;transition:left .26s cubic-bezier(.4,0,.2,1);box-shadow:none}
+  #sidebar.open{left:0;box-shadow:4px 0 28px rgba(0,0,0,.35)}
+  #sidebar-overlay.show{display:block}
+  #menu-toggle{display:flex}
+  #main{width:100%;display:flex;flex-direction:column;min-height:100dvh}
+  #header{height:auto;min-height:56px;padding:8px 12px;flex-wrap:wrap;gap:8px;position:sticky;top:0;z-index:50;background:#fff}
+  html[data-theme=dark] #header{background:#1e293b}
+  #page-title{flex:1;min-width:0}
+  #page-title h1{font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  #page-title p{display:none}
+  #save-chip,#last-save,#refresh-btn,#clients-chip,.lang-switcher,#live-clock,#search-btn{display:none!important}
+  #lbl-online-btn{padding:7px 10px;font-size:0}
+  #lbl-online-btn::before{content:'🌐';font-size:16px}
+  #content{padding:12px;flex:1;overflow:visible;height:auto}
+  .grid4,.grid3{grid-template-columns:1fr 1fr}
+  .grid2{grid-template-columns:1fr}
+  .kpi-card{padding:14px}
+  .kpi-card .val{font-size:20px}
+  .kpi-card h3{font-size:11px}
+  .kpi-card .icon{font-size:24px;right:10px;top:10px}
+  .card{padding:14px}
+  .modal{width:96%;padding:16px;border-radius:14px;max-height:92dvh}
+  .form-grid{grid-template-columns:1fr!important}
+  .form-full{grid-column:1!important}
+  .toolbar{flex-wrap:wrap;gap:6px}
+  .toolbar input,.toolbar select{font-size:12px}
+  th{padding:8px 10px;font-size:11px}
+  td{padding:8px 10px;font-size:12px}
+  .badge{font-size:10px;padding:2px 7px}
+  .avatar{width:30px;height:30px;font-size:12px;margin-right:6px}
+  .section-hdr{flex-wrap:wrap;gap:8px}
+  #net-modal .modal>div:nth-child(2){grid-template-columns:1fr!important}
+  .payslip{padding:20px}
+  .payslip-info{grid-template-columns:1fr}
+  .payslip-net .amount{font-size:28px}
+}
+@media(max-width:480px){
+  .grid4,.grid3,.grid2{grid-template-columns:1fr}
+  .kpi-card .val{font-size:18px}
+  .theme-btn{padding:4px 6px}
+  .hdr-btn{padding:6px 10px;font-size:12px}
+  .login-box{padding:24px 20px;border-radius:16px}
+  .login-logo .icon{font-size:40px}
+  .login-logo h1{font-size:20px}
+  #notif-dropdown{width:calc(100vw - 24px);right:-12px}
+}
+
+/* ── LOGIN OVERLAY ── */
+#login-overlay{position:fixed;inset:0;background:linear-gradient(135deg,#1e1b4b,#312e81,#0f0c29);display:flex;align-items:center;justify-content:center;z-index:9998}
+.login-box{background:#fff;border-radius:24px;padding:40px;width:90%;max-width:400px;box-shadow:0 24px 64px rgba(0,0,0,.4)}
+.login-logo{text-align:center;margin-bottom:28px}
+.login-logo .icon{font-size:52px}
+.login-logo h1{font-size:24px;font-weight:800;color:#1e293b;margin-top:8px}
+.login-logo p{font-size:13px;color:#94a3b8;margin-top:4px}
+html[data-theme=dark] .login-box{background:#1e293b}
+html[data-theme=dark] .login-logo h1{color:#f1f5f9}
+
+/* ── SEARCH OVERLAY ── */
+#search-overlay{position:fixed;inset:0;background:rgba(0,0,0,.65);backdrop-filter:blur(6px);z-index:8000;display:flex;align-items:flex-start;justify-content:center;padding-top:80px;opacity:0;pointer-events:none;transition:opacity .2s}
+#search-overlay.open{opacity:1;pointer-events:all}
+.search-box{background:#fff;border-radius:16px;width:90%;max-width:600px;box-shadow:0 24px 64px rgba(0,0,0,.4);overflow:hidden}
+html[data-theme=dark] .search-box{background:#1e293b}
+.search-input-wrap{display:flex;align-items:center;padding:14px 16px;border-bottom:1px solid #f1f5f9;gap:10px}
+html[data-theme=dark] .search-input-wrap{border-color:#334155}
+#search-input{border:none;outline:none;font-size:16px;font-family:'Sarabun',sans-serif;color:#1e293b;background:transparent;flex:1}
+html[data-theme=dark] #search-input{color:#f1f5f9}
+#search-input::placeholder{color:#94a3b8}
+.search-results{max-height:380px;overflow-y:auto}
+.search-result-item{display:flex;align-items:center;gap:12px;padding:11px 16px;cursor:pointer;border-bottom:1px solid #f8fafc;transition:background .1s}
+html[data-theme=dark] .search-result-item{border-color:#1e293b}
+.search-result-item:hover{background:#f0f4ff}
+html[data-theme=dark] .search-result-item:hover{background:#0f172a}
+.search-result-item:last-child{border:none}
+.search-empty{text-align:center;padding:32px;color:#94a3b8;font-size:14px}
+.search-hint{padding:10px 16px;font-size:11px;color:#94a3b8;border-top:1px solid #f1f5f9;display:flex;justify-content:space-between}
+html[data-theme=dark] .search-hint{border-color:#334155}
+
+/* ── CUSTOM CONFIRM ── */
+#confirm-modal{position:fixed;inset:0;background:rgba(0,0,0,.55);backdrop-filter:blur(4px);z-index:9500;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .2s}
+#confirm-modal.open{opacity:1;pointer-events:all}
+.confirm-box{background:#fff;border-radius:20px;padding:32px;width:90%;max-width:380px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.3);transform:scale(.95);transition:transform .2s}
+#confirm-modal.open .confirm-box{transform:scale(1)}
+html[data-theme=dark] .confirm-box{background:#1e293b}
+.confirm-icon{font-size:46px;margin-bottom:10px}
+.confirm-msg{font-size:15px;font-weight:600;color:#1e293b;margin-bottom:22px;line-height:1.5}
+html[data-theme=dark] .confirm-msg{color:#f1f5f9}
+.confirm-actions{display:flex;gap:10px;justify-content:center}
+
+/* ── NOTIFICATION BELL ── */
+.notif-wrap{position:relative}
+.notif-bell{width:36px;height:36px;border-radius:10px;background:#f8fafc;border:1.5px solid #e2e8f0;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px;transition:all .2s}
+.notif-bell:hover{border-color:#4f46e5;background:#eef2ff}
+html[data-theme=dark] .notif-bell{background:#1e293b;border-color:#334155}
+html[data-theme=dark] .notif-bell:hover{border-color:#6366f1;background:#1e1d4a}
+.notif-count{position:absolute;top:-6px;right:-6px;background:#ef4444;color:#fff;border-radius:50%;width:18px;height:18px;font-size:10px;font-weight:700;display:none;align-items:center;justify-content:center;border:2px solid #fff}
+.notif-count.show{display:flex}
+#notif-dropdown{position:absolute;right:0;top:44px;width:320px;background:#fff;border-radius:14px;box-shadow:0 8px 32px rgba(0,0,0,.15);border:1.5px solid #e2e8f0;z-index:500;display:none;max-height:380px;overflow-y:auto}
+#notif-dropdown.show{display:block}
+html[data-theme=dark] #notif-dropdown{background:#1e293b;border-color:#334155}
+.notif-hdr{padding:12px 16px;border-bottom:1px solid #f1f5f9;font-weight:700;font-size:14px;color:#1e293b;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;background:#fff}
+html[data-theme=dark] .notif-hdr{color:#f1f5f9;border-color:#334155;background:#1e293b}
+.notif-item{padding:11px 16px;border-bottom:1px solid #f8fafc;display:flex;gap:10px;align-items:flex-start;cursor:pointer;transition:background .1s}
+html[data-theme=dark] .notif-item{border-color:#334155}
+.notif-item:hover{background:#f8fafc}
+html[data-theme=dark] .notif-item:hover{background:#0f172a}
+.notif-item-icon{font-size:20px;flex-shrink:0;margin-top:1px}
+.notif-item-body{flex:1}
+.notif-item-title{font-size:13px;font-weight:600;color:#1e293b}
+html[data-theme=dark] .notif-item-title{color:#f1f5f9}
+.notif-item-sub{font-size:11px;color:#94a3b8;margin-top:2px}
+.notif-empty{padding:20px;text-align:center;color:#94a3b8;font-size:13px}
+
+/* ── LIVE CLOCK ── */
+#live-clock{font-size:13px;font-weight:700;color:#4f46e5;background:#eef2ff;padding:5px 11px;border-radius:8px;font-variant-numeric:tabular-nums;letter-spacing:.5px;white-space:nowrap}
+html[data-theme=dark] #live-clock{background:#1e1d4a;color:#818cf8}
+html[data-theme=purple] #live-clock{background:#f3e8ff;color:#9333ea}
+
+/* ── PAGINATION ── */
+.pagination{display:flex;align-items:center;gap:5px;margin-top:14px;justify-content:center;flex-wrap:wrap}
+.page-btn{min-width:34px;height:34px;border-radius:8px;border:1.5px solid #e2e8f0;background:#fff;cursor:pointer;font-size:13px;font-weight:600;color:#475569;transition:all .2s;display:flex;align-items:center;justify-content:center;padding:0 8px;font-family:'Sarabun',sans-serif}
+.page-btn:hover{border-color:#4f46e5;color:#4f46e5}
+.page-btn.active{background:#4f46e5;border-color:#4f46e5;color:#fff}
+html[data-theme=dark] .page-btn{background:#1e293b;border-color:#334155;color:#94a3b8}
+html[data-theme=dark] .page-btn:hover{border-color:#6366f1;color:#818cf8}
+html[data-theme=dark] .page-btn.active{background:#4f46e5;color:#fff}
+
+/* ── AUDIT LOG ── */
+.audit-item{display:flex;gap:12px;padding:10px 0;border-bottom:1px solid #f1f5f9;align-items:flex-start}
+html[data-theme=dark] .audit-item{border-color:#334155}
+.audit-item:last-child{border:none}
+.audit-dot{width:8px;height:8px;background:#4f46e5;border-radius:50%;flex-shrink:0;margin-top:6px}
+.audit-action{font-size:13px;font-weight:600;color:#1e293b}
+html[data-theme=dark] .audit-action{color:#f1f5f9}
+.audit-meta{font-size:11px;color:#94a3b8;margin-top:2px}
+
+/* ── HISTORY ── */
+.history-item{display:flex;align-items:center;gap:14px;padding:14px;background:#f8fafc;border-radius:12px;margin-bottom:8px;cursor:pointer;transition:all .2s}
+html[data-theme=dark] .history-item{background:#0f172a}
+.history-item:hover{background:#eef2ff;transform:translateX(2px)}
+html[data-theme=dark] .history-item:hover{background:#1e1d4a}
+.history-icon{font-size:26px;flex-shrink:0}
+.history-body{flex:1}
+.history-period{font-size:15px;font-weight:700;color:#1e293b}
+html[data-theme=dark] .history-period{color:#f1f5f9}
+.history-meta{font-size:12px;color:#94a3b8;margin-top:2px}
+.history-total{font-size:14px;font-weight:800;color:#4f46e5}
+
+/* ── IMPORT DROPZONE ── */
+.import-dropzone{border:2px dashed #e2e8f0;border-radius:12px;padding:32px;text-align:center;cursor:pointer;transition:all .2s;font-size:14px;color:#64748b}
+.import-dropzone:hover,.import-dropzone.dragover{border-color:#4f46e5;background:#eef2ff;color:#4f46e5}
+html[data-theme=dark] .import-dropzone{border-color:#334155;color:#64748b}
+html[data-theme=dark] .import-dropzone:hover{border-color:#6366f1;background:#1e1d4a}
+
+/* ── USER CHIP ── */
+.user-chip{display:flex;align-items:center;gap:7px;padding:5px 10px;border-radius:8px;background:#f1f5f9;cursor:pointer;transition:background .15s;font-size:12px;font-weight:700;color:#475569}
+.user-chip:hover{background:#e2e8f0}
+html[data-theme=dark] .user-chip{background:#1e293b;color:#94a3b8}
+html[data-theme=dark] .user-chip:hover{background:#0f172a}
+.user-avatar{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#4f46e5,#7c3aed);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:12px;flex-shrink:0}
+
+/* ── SEARCH BTN ── */
+#search-btn{display:flex;align-items:center;gap:6px;padding:6px 12px;border-radius:8px;border:1.5px solid #e2e8f0;background:#f8fafc;cursor:pointer;font-size:12px;font-weight:600;color:#64748b;transition:all .2s;font-family:'Sarabun',sans-serif}
+#search-btn:hover{border-color:#4f46e5;color:#4f46e5;background:#eef2ff}
+html[data-theme=dark] #search-btn{background:#1e293b;border-color:#334155;color:#64748b}
+html[data-theme=dark] #search-btn:hover{border-color:#6366f1;color:#818cf8}
+.search-kbd{background:#e2e8f0;border-radius:4px;padding:1px 5px;font-size:10px;font-family:monospace;color:#475569}
+html[data-theme=dark] .search-kbd{background:#334155;color:#94a3b8}
+
+/* ── PRINT ALL ── */
+@media print{
+  #login-overlay,#search-overlay,#confirm-modal,#notif-dropdown{display:none!important}
+}
 </style>
 </head>
 <body>
@@ -271,6 +453,9 @@ html[data-theme=dark] .lang-btn.active{background:#4f46e5;color:#fff}
 
 <!-- Toast Container -->
 <div id="toast-container"></div>
+
+<!-- Sidebar Overlay (mobile) -->
+<div id="sidebar-overlay" onclick="closeSidebar()"></div>
 
 <!-- Sidebar -->
 <div id="sidebar">
@@ -292,6 +477,10 @@ html[data-theme=dark] .lang-btn.active{background:#4f46e5;color:#fff}
     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20M6 15h4M14 15h4"/></svg>
     คำนวณเงินเดือน
   </div>
+  <div class="sb-item" onclick="navigate('history')" id="nav-history">
+    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path d="M3 3v5h5M3.05 13A9 9 0 106 5.3L3 8"/><path d="M12 7v5l4 2"/></svg>
+    ประวัติเงินเดือน
+  </div>
   <div class="sb-section">การบริหาร</div>
   <div class="sb-item" onclick="navigate('leave')" id="nav-leave">
     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01"/></svg>
@@ -305,16 +494,21 @@ html[data-theme=dark] .lang-btn.active{background:#4f46e5;color:#fff}
     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/></svg>
     รายงาน
   </div>
+  <div class="sb-item" onclick="navigate('auditlog')" id="nav-auditlog">
+    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path d="M9 12l2 2 4-4M7 2v20M17 2v20M3 6h4M3 18h4M17 6h4M17 18h4M3 12h4M17 12h4"/></svg>
+    Audit Log
+  </div>
   <div class="sb-item" onclick="navigate('settings')" id="nav-settings">
     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
     ตั้งค่าระบบ
   </div>
-  <div class="sb-footer">Real-time Payroll System<br>Web + Desktop Sync</div>
+  <div class="sb-footer" id="sb-footer-user">Real-time Payroll System<br>Web + Desktop Sync</div>
 </div>
 
 <!-- Main -->
 <div id="main">
   <div id="header">
+    <button id="menu-toggle" onclick="toggleSidebar()" aria-label="เมนู">☰</button>
     <div id="page-title">
       <h1 id="hdr-title">แดชบอร์ด</h1>
       <p id="hdr-sub">ภาพรวมระบบเงินเดือน</p>
@@ -338,8 +532,20 @@ html[data-theme=dark] .lang-btn.active{background:#4f46e5;color:#fff}
       <button class="lang-btn active" id="btn-th" onclick="setLang('th')">TH</button>
       <button class="lang-btn"        id="btn-en" onclick="setLang('en')">EN</button>
     </div>
+    <span id="live-clock">00:00:00</span>
+    <button id="search-btn" onclick="openSearch()" title="ค้นหา (Ctrl+K)">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="14" height="14" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      ค้นหา <span class="search-kbd">Ctrl+K</span>
+    </button>
+    <div class="notif-wrap">
+      <div class="notif-bell" onclick="toggleNotifications()" title="การแจ้งเตือน">🔔<span class="notif-count" id="notif-count">0</span></div>
+      <div id="notif-dropdown"></div>
+    </div>
     <button class="hdr-btn hdr-btn-primary" onclick="openNetworkModal()" id="lbl-online-btn">🌐 เข้าถึงออนไลน์</button>
-    <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#4f46e5,#7c3aed);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:14px;flex-shrink:0">HR</div>
+    <div class="user-chip" onclick="doLogout()" title="ออกจากระบบ">
+      <div class="user-avatar" id="user-avatar-hdr">HR</div>
+      <span id="user-name-hdr">HR</span>
+    </div>
   </div>
   <div id="content"></div>
 </div>
@@ -422,6 +628,7 @@ html[data-theme=dark] .lang-btn.active{background:#4f46e5;color:#fff}
     <div class="modal-hdr">
       <div class="modal-title">สลิปเงินเดือน</div>
       <div style="display:flex;gap:8px">
+        <button class="btn btn-outline btn-sm" id="payslip-email-btn" onclick="">📧 อีเมล</button>
         <button class="btn btn-outline btn-sm" onclick="window.print()">🖨️ พิมพ์</button>
         <button class="modal-close" onclick="closeModal('payslip-modal')">✕</button>
       </div>
@@ -463,6 +670,101 @@ html[data-theme=dark] .lang-btn.active{background:#4f46e5;color:#fff}
       <div class="conn-status-row"><span class="conn-label">อุปกรณ์ที่เชื่อมต่อ</span><span class="conn-val" id="net-clients-val">–</span></div>
       <div class="conn-status-row"><span class="conn-label">บันทึกล่าสุด</span><span class="conn-val" id="net-lastsave-val">–</span></div>
     </div>
+  </div>
+</div>
+
+<!-- Login Overlay -->
+<div id="login-overlay" style="display:none">
+  <div class="login-box">
+    <div class="login-logo">
+      <div class="icon">💎</div>
+      <h1>PayrollPro</h1>
+      <p>ระบบบริหารเงินเดือน — กรุณาเข้าสู่ระบบ</p>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:14px">
+      <div class="form-group">
+        <label>ชื่อผู้ใช้</label>
+        <input id="login-user" placeholder="admin / hr" autocomplete="username" onkeydown="if(event.key==='Enter')document.getElementById('login-pass').focus()">
+      </div>
+      <div class="form-group">
+        <label>รหัสผ่าน</label>
+        <input id="login-pass" type="password" placeholder="••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()">
+      </div>
+      <button class="btn btn-primary" style="width:100%;padding:12px;font-size:15px;margin-top:4px" onclick="doLogin()">เข้าสู่ระบบ</button>
+      <p style="text-align:center;font-size:12px;color:#94a3b8">ค่าเริ่มต้น: admin / 1234 หรือ hr / 1234</p>
+    </div>
+  </div>
+</div>
+
+<!-- Custom Confirm Modal -->
+<div id="confirm-modal">
+  <div class="confirm-box">
+    <div class="confirm-icon" id="confirm-icon">⚠️</div>
+    <div class="confirm-msg" id="confirm-msg">คุณแน่ใจหรือไม่?</div>
+    <div class="confirm-actions">
+      <button class="btn btn-outline" style="flex:1" onclick="closeConfirm()">ยกเลิก</button>
+      <button class="btn btn-danger" style="flex:1" id="confirm-ok-btn" onclick="confirmOk()">ยืนยัน</button>
+    </div>
+  </div>
+</div>
+
+<!-- Search Overlay -->
+<div id="search-overlay" onclick="if(event.target===this)closeSearch()">
+  <div class="search-box">
+    <div class="search-input-wrap">
+      <svg fill="none" stroke="#94a3b8" viewBox="0 0 24 24" width="20" height="20" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <input id="search-input" placeholder="ค้นหาพนักงาน, รายการลา, OT..." oninput="doSearch(this.value)" autocomplete="off">
+      <button onclick="closeSearch()" style="background:none;border:none;cursor:pointer;color:#94a3b8;font-size:16px">✕</button>
+    </div>
+    <div class="search-results" id="search-results">
+      <div class="search-empty">🔍 พิมพ์เพื่อค้นหา...</div>
+    </div>
+    <div class="search-hint">
+      <span>Enter เพื่อเลือก · Esc เพื่อปิด</span>
+      <span><kbd class="search-kbd">Ctrl+K</kbd> เปิดค้นหา</span>
+    </div>
+  </div>
+</div>
+
+<!-- Import CSV Modal -->
+<div class="modal-backdrop" id="import-modal">
+  <div class="modal">
+    <div class="modal-hdr">
+      <div class="modal-title">📥 นำเข้าข้อมูลพนักงาน (CSV)</div>
+      <button class="modal-close" onclick="closeModal('import-modal')">✕</button>
+    </div>
+    <div class="import-dropzone" id="import-dropzone" onclick="document.getElementById('import-file').click()"
+      ondragover="event.preventDefault();this.classList.add('dragover')"
+      ondragleave="this.classList.remove('dragover')"
+      ondrop="event.preventDefault();this.classList.remove('dragover');handleImportDrop(event)">
+      <div style="font-size:40px;margin-bottom:8px">📂</div>
+      <div style="font-weight:700;margin-bottom:4px">คลิกหรือลากไฟล์มาวางที่นี่</div>
+      <div style="font-size:12px;color:#94a3b8">รองรับไฟล์ .csv เท่านั้น</div>
+    </div>
+    <input type="file" id="import-file" accept=".csv" style="display:none" onchange="handleImportFile(event)">
+    <div id="import-preview" style="margin-top:14px"></div>
+    <div style="margin-top:12px;background:#f0fdf4;border-radius:10px;padding:10px 14px;font-size:12px;color:#065f46">
+      💡 รูปแบบ CSV: รหัส, ชื่อ-สกุล, แผนก, ตำแหน่ง, เงินเดือน, อีเมล, โทร, ธนาคาร, เลขบัญชี<br>
+      <a href="#" onclick="downloadImportTemplate();return false" style="color:#059669;font-weight:700">⬇️ ดาวน์โหลด Template CSV</a>
+    </div>
+    <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:16px">
+      <button class="btn btn-outline" onclick="closeModal('import-modal')">ยกเลิก</button>
+      <button class="btn btn-primary" id="import-confirm-btn" onclick="confirmImport()" style="display:none">📥 นำเข้าข้อมูล</button>
+    </div>
+  </div>
+</div>
+
+<!-- Batch Print Modal -->
+<div class="modal-backdrop" id="batch-print-modal">
+  <div class="modal modal-lg">
+    <div class="modal-hdr">
+      <div class="modal-title">🖨️ พิมพ์สลิปทั้งหมด</div>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-primary btn-sm" onclick="doBatchPrint()">🖨️ พิมพ์ทั้งหมด</button>
+        <button class="modal-close" onclick="closeModal('batch-print-modal')">✕</button>
+      </div>
+    </div>
+    <div id="batch-print-content" style="max-height:60vh;overflow-y:auto"></div>
   </div>
 </div>
 
@@ -779,9 +1081,10 @@ function updateStaticI18n() {
 // STATE
 // ════════════════════════════════════════════════════
 let employees = [], leaveRecords = [], otRecords = []
+let payrollHistory = [], auditLog = [], users = [], bonuses = {}
 let appSettings = {
   company: { name:'บริษัท เทค ซอลูชั่น จำกัด', taxId:'0105564123456', address:'123 ถนนสุขุมวิท แขวงคลองเตย เขตคลองเตย กรุงเทพมหานคร 10110', phone:'02-123-4567', email:'hr@techsolution.co.th', logo:'💎' },
-  payroll: { payDay:30, periodMonth:'มิถุนายน', periodYear:'2568', ssfRate:5, ssfCap:15000, pfRate:5, pfEnabled:true, workDaysPerMonth:26, workHoursPerDay:8 },
+  payroll: { payDay:30, periodMonth:'มิถุนายน', periodYear:'2569', ssfRate:5, ssfCap:15000, pfRate:5, pfEnabled:true, workDaysPerMonth:26, workHoursPerDay:8 },
   leave: { annualLeave:10, sickLeave:30, personalLeave:3, maternityLeave:98 }
 }
 let networkInfo = { local:'', online:null }
@@ -792,6 +1095,11 @@ let clientCount = 1
 let chartTrend = null, chartDept = null
 let editingEmpId = null
 let empSearch = '', empDeptFilter = 'all'
+let empPage = 1
+const EMP_PER_PAGE = 15
+let currentUser = null
+let importPendingData = null
+let _confirmCb = null
 
 // ════════════════════════════════════════════════════
 // SOCKET.IO
@@ -802,27 +1110,37 @@ socket.on('connect', () => setStatus(true))
 socket.on('disconnect', () => setStatus(false))
 
 socket.on('data:init', (data) => {
-  employees    = data.employees    || []
-  leaveRecords = data.leaveRecords || []
-  otRecords    = data.otRecords    || []
+  employees       = data.employees       || []
+  leaveRecords    = data.leaveRecords    || []
+  otRecords       = data.otRecords       || []
+  payrollHistory  = data.payrollHistory  || []
+  auditLog        = data.auditLog        || []
+  users           = data.users           || []
+  bonuses         = data.bonuses         || {}
   if (data.settings) appSettings = data.settings
   if (data._updatedAt) { lastSaveTime = new Date(data._updatedAt); updateLastSave() }
   document.getElementById('loading-overlay').style.display = 'none'
+  checkLogin()
   applyTheme(currentTheme)
-  // Sync lang button active state
   document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'))
   const lb = document.getElementById('btn-' + currentLang)
   if (lb) lb.classList.add('active')
   updateStaticI18n()
+  updateNotifBell()
   renderView()
 })
 
 socket.on('data:sync', ({ data, action }) => {
-  employees    = data.employees    || []
-  leaveRecords = data.leaveRecords || []
-  otRecords    = data.otRecords    || []
+  employees       = data.employees       || []
+  leaveRecords    = data.leaveRecords    || []
+  otRecords       = data.otRecords       || []
+  payrollHistory  = data.payrollHistory  || []
+  auditLog        = data.auditLog        || []
+  users           = data.users           || []
+  bonuses         = data.bonuses         || {}
   if (data.settings) appSettings = data.settings
   if (data._updatedAt) { lastSaveTime = new Date(data._updatedAt); updateLastSave() }
+  updateNotifBell()
   renderView()
   showToast('🔄 ซิงค์: ' + action, 'sync')
 })
@@ -918,12 +1236,13 @@ function buildPayroll() {
     const salary    = emp.salary || 0
     const otPay     = calcOtPay(emp.id)
     const allowance = getAllowance(emp.dept)
-    const gross     = salary + otPay + allowance
+    const bonus     = bonuses[emp.id] || 0
+    const gross     = salary + otPay + allowance + bonus
     const ssf       = calcSSF(salary)
     const tax       = calcTax(gross)
     const pf        = calcPF(salary)
     const net       = gross - ssf - tax - pf
-    return { ...emp, otPay, allowance, gross, ssf, tax, pf, net }
+    return { ...emp, otPay, allowance, bonus, gross, ssf, tax, pf, net }
   })
 }
 
@@ -932,7 +1251,12 @@ function buildPayroll() {
 // ════════════════════════════════════════════════════
 function emitUpdate(action) {
   setSaveStatus('saving')
-  socket.emit('data:update', { data: { employees, leaveRecords, otRecords, settings: appSettings }, action })
+  addAuditLog(action)
+  socket.emit('data:update', {
+    data: { employees, leaveRecords, otRecords, settings: appSettings,
+            payrollHistory, auditLog, users, bonuses },
+    action
+  })
 }
 
 // ════════════════════════════════════════════════════
@@ -953,16 +1277,27 @@ function setSaveStatus(state, action) {
     if (action && action !== 'refresh') showToast('✅ ' + action, 'success')
   }
 }
+function bkkTime(d) {
+  // sv-SE locale ให้ ISO string "YYYY-MM-DD HH:MM:SS" เสมอ — ไม่มีปัญหา 12/24 ชั่วโมง
+  return d.toLocaleString('sv-SE', { timeZone: TZ }).split(' ')[1].slice(0, 5)
+}
+function bkkDateTime(d) {
+  const s = d.toLocaleString('sv-SE', { timeZone: TZ })          // "2026-06-16 14:30:00"
+  const [date, time] = s.split(' ')
+  const [y, mo, day] = date.split('-')
+  const thMo = ['','ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.']
+  return `${parseInt(day)} ${thMo[parseInt(mo)]} ${parseInt(y)+543} ${time.slice(0,5)} น.`
+}
 function updateLastSave() {
   if (!lastSaveTime) return
   const diff = Math.floor((Date.now() - lastSaveTime) / 1000)
   let txt
   if (diff < 60)        txt = 'เมื่อกี้'
   else if (diff < 3600) txt = Math.floor(diff/60) + ' นาทีที่แล้ว'
-  else                  txt = lastSaveTime.toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit',hour12:false,timeZone:TZ}) + ' น.'
+  else                  txt = bkkTime(lastSaveTime) + ' น.'
   document.getElementById('last-save').textContent = txt
   const el = document.getElementById('net-lastsave-val')
-  if (el) el.textContent = lastSaveTime.toLocaleString('th-TH',{hour12:false,timeZone:TZ})
+  if (el) el.textContent = bkkDateTime(lastSaveTime)
 }
 setInterval(updateLastSave, 30000)
 
@@ -1022,6 +1357,16 @@ const pageTitles = {
   ot:        () => [t('pt_ot'),        t('ps_ot')],
   reports:   () => [t('pt_reports'),   t('ps_reports')],
   settings:  () => [t('pt_settings'),  t('ps_settings')],
+  history:   () => ['ประวัติเงินเดือน', 'บันทึกงวดเงินเดือนย้อนหลัง'],
+  auditlog:  () => ['Audit Log', 'ประวัติการเปลี่ยนแปลงข้อมูลในระบบ'],
+}
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('open')
+  document.getElementById('sidebar-overlay').classList.toggle('show')
+}
+function closeSidebar() {
+  document.getElementById('sidebar').classList.remove('open')
+  document.getElementById('sidebar-overlay').classList.remove('show')
 }
 function navigate(view) {
   currentView = view
@@ -1032,6 +1377,7 @@ function navigate(view) {
   document.getElementById('hdr-title').textContent = pT
   document.getElementById('hdr-sub').textContent   = pS
   renderView()
+  closeSidebar()
 }
 function renderView() {
   if      (currentView === 'dashboard') renderDashboard()
@@ -1041,6 +1387,8 @@ function renderView() {
   else if (currentView === 'ot')        renderOT()
   else if (currentView === 'reports')   renderReports()
   else if (currentView === 'settings')  renderSettings()
+  else if (currentView === 'history')   renderHistory()
+  else if (currentView === 'auditlog')  renderAuditLog()
 }
 
 // ════════════════════════════════════════════════════
@@ -1061,12 +1409,30 @@ function renderDashboard() {
   const mo = ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.']
   const cm = parseInt(new Date().toLocaleDateString('en-CA',{timeZone:TZ}).split('-')[1]) - 1
   const tLabels = [], tData = []
-  for (let i=5;i>=0;i--) {
-    tLabels.push(mo[(cm-i+12)%12])
-    tData.push(i===0 ? totGross : Math.round(totGross*(0.85+Math.random()*0.2)))
+  // Use real history if available
+  const sortedHist = [...payrollHistory].sort((a,b)=>a.savedAt.localeCompare(b.savedAt)).slice(-6)
+  if (sortedHist.length >= 2) {
+    sortedHist.forEach(h => { tLabels.push(h.periodMonth); tData.push(h.totGross) })
+    if (tLabels[tLabels.length-1] !== appSettings.payroll.periodMonth) { tLabels.push(appSettings.payroll.periodMonth); tData.push(totGross) }
+  } else {
+    for (let i=5;i>=0;i--) {
+      tLabels.push(mo[(cm-i+12)%12])
+      tData.push(i===0 ? totGross : Math.round(totGross*(0.85+Math.random()*0.2)))
+    }
   }
 
+  const alerts = getAlerts()
+  const alertsHtml = alerts.length > 0 ? `
+<div style="margin-bottom:16px;display:flex;flex-direction:column;gap:8px">
+${alerts.map(a=>`<div style="display:flex;align-items:center;gap:10px;padding:12px 16px;border-radius:12px;background:${a.color};border-left:4px solid ${a.border};cursor:pointer" onclick="${a.action||''}">
+  <span style="font-size:18px">${a.icon}</span>
+  <div style="flex:1"><div style="font-size:13px;font-weight:700;color:${a.textColor}">${a.title}</div><div style="font-size:12px;color:${a.textColor};opacity:.8;margin-top:1px">${a.desc}</div></div>
+  <svg fill="none" stroke="${a.textColor}" viewBox="0 0 24 24" width="16" height="16" opacity=".5" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+</div>`).join('')}
+</div>` : ''
+
   document.getElementById('content').innerHTML = `<div class="view">
+${alertsHtml}
 <div class="grid4" style="margin-bottom:16px">
   <div class="kpi-card g1"><span class="icon">👥</span><h3>${t('kpi_employees')}</h3><div class="val">${employees.length}</div><div class="sub">${t('kpi_active_sub').replace('{n}',employees.filter(e=>e.status==='active').length)}</div></div>
   <div class="kpi-card g2"><span class="icon">💰</span><h3>${t('kpi_gross')}</h3><div class="val">฿${fmt(totGross)}</div><div class="sub">${t('unit_month')}</div></div>
@@ -1127,38 +1493,58 @@ function renderEmployees() {
   if (empSearch) filtered = filtered.filter(e =>
     e.name.includes(empSearch)||e.id.includes(empSearch)||(e.pos||'').includes(empSearch)||(e.email||'').includes(empSearch))
   if (empDeptFilter !== 'all') filtered = filtered.filter(e => e.dept === empDeptFilter)
+  const totalPages = Math.max(1, Math.ceil(filtered.length / EMP_PER_PAGE))
+  if (empPage > totalPages) empPage = totalPages
+  const paged = filtered.slice((empPage-1)*EMP_PER_PAGE, empPage*EMP_PER_PAGE)
+
+  const pageButtons = () => {
+    if (totalPages <= 1) return ''
+    let btns = '<div class="pagination">'
+    btns += `<button class="page-btn" onclick="empPage=${Math.max(1,empPage-1)};renderEmployees()" ${empPage===1?'disabled':''}>‹</button>`
+    for (let i=1;i<=totalPages;i++) {
+      if (totalPages>7 && i>2 && i<totalPages-1 && Math.abs(i-empPage)>1) { if(i===3||i===totalPages-2) btns+='<span style="padding:0 4px;color:#94a3b8">…</span>'; continue }
+      btns += `<button class="page-btn ${i===empPage?'active':''}" onclick="empPage=${i};renderEmployees()">${i}</button>`
+    }
+    btns += `<button class="page-btn" onclick="empPage=${Math.min(totalPages,empPage+1)};renderEmployees()" ${empPage===totalPages?'disabled':''}>›</button>`
+    return btns + '</div>'
+  }
 
   document.getElementById('content').innerHTML = `<div class="view">
 <div class="toolbar">
-  <input placeholder="${t('emp_search_ph')}" style="max-width:280px" oninput="empSearch=this.value;renderEmployees()" value="${escHtml(empSearch)}">
-  <select onchange="empDeptFilter=this.value;renderEmployees()">
+  <input placeholder="${t('emp_search_ph')}" style="max-width:280px" oninput="empSearch=this.value;empPage=1;renderEmployees()" value="${escHtml(empSearch)}">
+  <select onchange="empDeptFilter=this.value;empPage=1;renderEmployees()">
     <option value="all">${t('all_depts')}</option>
     ${depts.map(d=>`<option value="${d}"${d===empDeptFilter?' selected':''}>${d}</option>`).join('')}
   </select>
   <div class="spacer"></div>
+  <button class="btn btn-outline" onclick="openImportModal()">📥 นำเข้า CSV</button>
   <button class="btn btn-outline" onclick="exportEmployeesCSV()">${t('btn_export')}</button>
   <button class="btn btn-primary" onclick="openEmpModal()">${t('btn_add_emp')}</button>
 </div>
 <div class="card">
   <div class="tbl-wrap"><table>
-    <thead><tr><th>${t('col_code')}</th><th>${t('col_name')}</th><th>${t('col_dept')}</th><th>${t('col_pos')}</th><th>${t('col_salary')}</th><th>${t('col_start')}</th><th>${t('col_status')}</th><th>${t('col_manage')}</th></tr></thead>
-    <tbody>${filtered.length===0?`<tr><td colspan="8"><div class="empty-state"><div class="icon">👤</div><p>${t('no_employees')}</p></div></td></tr>`:
-    filtered.map(e=>`<tr>
+    <thead><tr><th>${t('col_code')}</th><th>${t('col_name')}</th><th>${t('col_dept')}</th><th>${t('col_pos')}</th><th>${t('col_salary')}</th><th>โบนัส</th><th>${t('col_start')}</th><th>${t('col_status')}</th><th>${t('col_manage')}</th></tr></thead>
+    <tbody>${paged.length===0?`<tr><td colspan="9"><div class="empty-state"><div class="icon">👤</div><p>${t('no_employees')}</p></div></td></tr>`:
+    paged.map(e=>`<tr>
       <td style="font-family:monospace;font-weight:600;color:#64748b">${e.id}</td>
       <td><div class="td-name"><div class="avatar" style="background:${avatarColor(e.name)}">${e.name[0]}</div>
         <div><div style="font-weight:600">${e.name}</div><div style="font-size:11px;color:#94a3b8">${e.email||''}</div></div></div></td>
       <td>${deptBadge(e.dept)}</td>
       <td>${e.pos||'-'}</td>
       <td style="font-weight:700;color:#4f46e5">฿${fmt(e.salary)}</td>
+      <td><input type="number" min="0" value="${bonuses[e.id]||0}" style="width:90px;padding:4px 8px;font-size:12px" onchange="setBonusInline('${e.id}',this.value)"></td>
       <td style="color:#64748b">${e.start||'-'}</td>
       <td>${statusBadge(e.status)}</td>
-      <td><div style="display:flex;gap:6px">
+      <td><div style="display:flex;gap:5px">
         <button class="btn btn-outline btn-xs" onclick="openEmpModal('${e.id}')">${t('btn_edit')}</button>
         <button class="btn btn-danger btn-xs" onclick="deleteEmployee('${e.id}')">🗑️</button>
       </div></td>
     </tr>`).join('')}</tbody>
   </table></div>
-  <div style="padding:12px 0 0;font-size:12px;color:#94a3b8">${t('show_n').replace('{a}',filtered.length).replace('{b}',employees.length)}</div>
+  <div style="display:flex;align-items:center;justify-content:space-between;padding-top:10px;flex-wrap:wrap;gap:8px">
+    <div style="font-size:12px;color:#94a3b8">${t('show_n').replace('{a}',filtered.length).replace('{b}',employees.length)}</div>
+    ${pageButtons()}
+  </div>
 </div></div>`
 }
 
@@ -1215,10 +1601,12 @@ function saveEmployee() {
 }
 function deleteEmployee(id) {
   const emp = empById(id)
-  if (!confirm(t('del_emp_confirm').replace('{n}', emp?.name||id))) return
-  employees = employees.filter(e=>e.id!==id)
-  emitUpdate('ลบพนักงาน: '+(emp?.name||id))
-  renderEmployees()
+  showConfirm(t('del_emp_confirm').replace('{n}', emp?.name||id), () => {
+    employees = employees.filter(e=>e.id!==id)
+    delete bonuses[id]
+    emitUpdate('ลบพนักงาน: '+(emp?.name||id))
+    renderEmployees()
+  }, '🗑️')
 }
 
 // ════════════════════════════════════════════════════
@@ -1236,7 +1624,9 @@ function renderPayroll() {
   document.getElementById('content').innerHTML = `<div class="view">
 <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px">
   <div style="font-size:15px;font-weight:600;color:#64748b">${t('period_lbl')} <strong style="color:#4f46e5">${pp.periodMonth} ${pp.periodYear}</strong> · ${t('pay_day_lbl')} ${pp.payDay} ${t('of_month')}</div>
-  <div style="display:flex;gap:10px">
+  <div style="display:flex;gap:10px;flex-wrap:wrap">
+    <button class="btn btn-outline" onclick="savePayrollSnapshot()" title="บันทึกประวัติงวดนี้">📌 บันทึกงวด</button>
+    <button class="btn btn-outline" onclick="openBatchPrint()">🖨️ พิมพ์ทั้งหมด</button>
     <button class="btn btn-outline" onclick="exportPayrollCSV()">${t('btn_export')}</button>
     <button class="btn btn-outline" onclick="exportBankCSV()">${t('btn_bank')}</button>
   </div>
@@ -1249,25 +1639,27 @@ function renderPayroll() {
 </div>
 <div class="card">
   <div class="tbl-wrap"><table>
-    <thead><tr><th>${t('col_emp')}</th><th>${t('col_dept')}</th><th>${t('col_salary')}</th><th>${t('col_ot')}</th><th>${t('col_allow')}</th><th>${t('kpi_gross_pay')}</th><th>${t('col_ssf')}</th><th>${t('col_tax')}</th><th>${t('col_pf')}</th><th>${t('col_net')}</th><th>${t('col_slip')}</th></tr></thead>
+    <thead><tr><th>${t('col_emp')}</th><th>${t('col_dept')}</th><th>${t('col_salary')}</th><th>${t('col_ot')}</th><th>${t('col_allow')}</th><th>โบนัส</th><th>${t('kpi_gross_pay')}</th><th>${t('col_ssf')}</th><th>${t('col_tax')}</th><th>${t('col_pf')}</th><th>${t('col_net')}</th><th>${t('col_slip')}</th></tr></thead>
     <tbody>${pr.map(e=>`<tr>
       <td><div class="td-name"><div class="avatar" style="background:${avatarColor(e.name)}">${e.name[0]}</div>${e.name}</div></td>
       <td>${deptBadge(e.dept)}</td>
       <td>฿${fmt(e.salary)}</td>
       <td style="color:#10b981;font-weight:600">฿${fmt(e.otPay)}</td>
       <td style="color:#f59e0b">฿${fmt(e.allowance)}</td>
+      <td style="color:#d97706;font-weight:600">${e.bonus>0?'฿'+fmt(e.bonus):'-'}</td>
       <td style="font-weight:700">฿${fmt(e.gross)}</td>
       <td style="color:#ef4444">-฿${fmt(e.ssf)}</td>
       <td style="color:#ef4444">-฿${fmt(e.tax)}</td>
       <td style="color:#ef4444">-฿${fmt(e.pf)}</td>
       <td style="font-weight:800;color:#4f46e5;font-size:14px">฿${fmt(e.net)}</td>
-      <td><button class="btn btn-outline btn-xs" onclick="showPayslip('${e.id}')">📄</button></td>
+      <td><div style="display:flex;gap:4px"><button class="btn btn-outline btn-xs" onclick="showPayslip('${e.id}')">📄</button><button class="btn btn-outline btn-xs" onclick="emailPayslip(buildPayroll().find(p=>p.id==='${e.id}'))">📧</button></div></td>
     </tr>`).join('')}</tbody>
     <tfoot><tr style="background:#f8fafc;font-weight:800">
       <td colspan="2">${t('row_total')}</td>
       <td>฿${fmt(pr.reduce((s,e)=>s+e.salary,0))}</td>
       <td style="color:#10b981">฿${fmt(pr.reduce((s,e)=>s+e.otPay,0))}</td>
       <td>฿${fmt(pr.reduce((s,e)=>s+e.allowance,0))}</td>
+      <td style="color:#d97706">฿${fmt(pr.reduce((s,e)=>s+e.bonus,0))}</td>
       <td>฿${fmt(totGross)}</td>
       <td style="color:#ef4444">-฿${fmt(totSSF)}</td>
       <td style="color:#ef4444">-฿${fmt(totTax)}</td>
@@ -1284,13 +1676,18 @@ function showPayslip(empId) {
   const e  = pr.find(p=>p.id===empId); if (!e) return
   const co = appSettings.company
   const pp = appSettings.payroll
+  const qrData = encodeURIComponent(`PayrollPro|${e.id}|${e.name}|${pp.periodMonth} ${pp.periodYear}|Net:${e.net}`)
+  const qrUrl  = `https://api.qrserver.com/v1/create-qr-code/?size=90x90&data=${qrData}`
   document.getElementById('payslip-content').innerHTML = `
 <div class="payslip">
-  <div class="payslip-hdr">
-    <div class="payslip-logo">${co.logo||'💎'}</div>
-    <div class="payslip-company">${co.name}</div>
-    <div class="payslip-sub">เลขที่ผู้เสียภาษี: ${co.taxId} | โทร: ${co.phone}</div>
-    <div class="payslip-sub">${co.address}</div>
+  <div class="payslip-hdr" style="display:flex;justify-content:space-between;align-items:flex-start">
+    <div style="flex:1;text-align:center">
+      <div class="payslip-logo">${co.logo||'💎'}</div>
+      <div class="payslip-company">${co.name}</div>
+      <div class="payslip-sub">เลขที่ผู้เสียภาษี: ${co.taxId} | โทร: ${co.phone}</div>
+      <div class="payslip-sub">${co.address}</div>
+    </div>
+    <img src="${qrUrl}" width="90" height="90" style="border-radius:8px;border:1.5px solid #e2e8f0;flex-shrink:0;margin-left:16px" title="QR Code สลิปเงินเดือน" onerror="this.style.display='none'">
   </div>
   <div class="payslip-period">ใบรับรองเงินเดือน — ${pp.periodMonth} ${pp.periodYear}</div>
   <div class="payslip-info">
@@ -1312,6 +1709,7 @@ function showPayslip(empId) {
           <tr><td>เงินเดือน</td><td>฿${fmt(e.salary)}</td></tr>
           <tr><td>ค่าล่วงเวลา (OT)</td><td>฿${fmt(e.otPay)}</td></tr>
           <tr><td>เบี้ยเลี้ยง</td><td>฿${fmt(e.allowance)}</td></tr>
+          ${e.bonus>0?`<tr><td>โบนัส/เงินพิเศษ</td><td style="color:#f59e0b;font-weight:700">฿${fmt(e.bonus)}</td></tr>`:''}
           <tr style="background:#f0fdf4;font-weight:800"><td>รายได้รวม</td><td>฿${fmt(e.gross)}</td></tr>
         </tbody>
       </table>
@@ -1335,6 +1733,8 @@ function showPayslip(empId) {
     <p style="font-size:12px;margin-top:6px">หากมีข้อสงสัยกรุณาติดต่อ HR · ${co.email}</p>
   </div>
 </div>`
+  const emailBtn = document.getElementById('payslip-email-btn')
+  if (emailBtn) emailBtn.onclick = () => emailPayslip(e)
   openModal('payslip-modal')
 }
 
@@ -1420,10 +1820,11 @@ function updateLeave(id, status) {
   renderLeave()
 }
 function deleteLeave(id) {
-  if (!confirm(t('del_leave_confirm'))) return
-  leaveRecords = leaveRecords.filter(l=>l.id!==id)
-  emitUpdate('ลบรายการลา')
-  renderLeave()
+  showConfirm(t('del_leave_confirm'), () => {
+    leaveRecords = leaveRecords.filter(l=>l.id!==id)
+    emitUpdate('ลบรายการลา')
+    renderLeave()
+  }, '🗑️')
 }
 
 // ════════════════════════════════════════════════════
@@ -1501,10 +1902,11 @@ function rejectOT(id) {
   renderOT()
 }
 function deleteOT(id) {
-  if (!confirm(t('del_ot_confirm'))) return
-  otRecords = otRecords.filter(o=>o.id!==id)
-  emitUpdate('ลบรายการ OT')
-  renderOT()
+  showConfirm(t('del_ot_confirm'), () => {
+    otRecords = otRecords.filter(o=>o.id!==id)
+    emitUpdate('ลบรายการ OT')
+    renderOT()
+  }, '🗑️')
 }
 
 // ════════════════════════════════════════════════════
@@ -1512,15 +1914,15 @@ function deleteOT(id) {
 // ════════════════════════════════════════════════════
 function renderReports() {
   const reports = [
-    {icon:'💰',title:'รายงานเงินเดือน',desc:'สรุปรายได้/หักทุกคนพร้อมส่งออก',fn:'exportPayrollCSV'},
-    {icon:'📄',title:'สลิปเงินเดือน (CSV)',desc:'ข้อมูลสลิปทุกคนในรูป CSV',fn:'exportPayrollCSV'},
-    {icon:'🏛️',title:'ภาษีเงินได้ (ภงด.1)',desc:'ภาษีหัก ณ ที่จ่ายรายบุคคล',fn:'exportTaxCSV'},
-    {icon:'🏥',title:'ประกันสังคม (สปส.)',desc:'รายการนำส่งสำนักงานประกันสังคม',fn:'exportSSFCSV'},
-    {icon:'⏰',title:'รายงาน OT',desc:'ทำงานล่วงเวลาทั้งหมดพร้อมค่าใช้จ่าย',fn:'exportOtCSV'},
-    {icon:'💼',title:'ต้นทุนพนักงาน',desc:'ต้นทุนรวม (รายได้+SSF นายจ้าง) แยกแผนก',fn:'exportCostCSV'},
-    {icon:'🏦',title:'ไฟล์โอนเงินธนาคาร',desc:'CSV สำหรับอัปโหลดระบบโอนเงินธนาคาร',fn:'exportBankCSV'},
-    {icon:'👥',title:'รายชื่อพนักงาน',desc:'ข้อมูลพนักงานทั้งหมดในระบบ',fn:'exportEmployeesCSV'},
-    {icon:'📅',title:'สถิติการลา',desc:'สรุปการลาแยกตามประเภทและพนักงาน',fn:'exportLeaveCSV'},
+    {icon:'💰',title:'รายงานเงินเดือน',desc:'สรุปรายได้/หักทุกคนพร้อมส่งออก',fn:'exportPayrollCSV',csv:true},
+    {icon:'🏛️',title:'ภาษีเงินได้ (ภงด.1)',desc:'ภาษีหัก ณ ที่จ่ายรายบุคคล',fn:'exportTaxCSV',csv:true},
+    {icon:'📊',title:'ภงด.1ก ประจำปี',desc:'รายงานภาษีสะสมรายปีทุกพนักงาน',fn:'renderAnnualTax',csv:false},
+    {icon:'🏥',title:'ประกันสังคม (สปส.)',desc:'รายการนำส่งสำนักงานประกันสังคม',fn:'exportSSFCSV',csv:true},
+    {icon:'⏰',title:'รายงาน OT',desc:'ทำงานล่วงเวลาทั้งหมดพร้อมค่าใช้จ่าย',fn:'exportOtCSV',csv:true},
+    {icon:'💼',title:'ต้นทุนพนักงาน',desc:'ต้นทุนรวม (รายได้+SSF นายจ้าง) แยกแผนก',fn:'exportCostCSV',csv:true},
+    {icon:'🏦',title:'ไฟล์โอนเงินธนาคาร',desc:'CSV สำหรับอัปโหลดระบบโอนเงินธนาคาร',fn:'exportBankCSV',csv:true},
+    {icon:'👥',title:'รายชื่อพนักงาน',desc:'ข้อมูลพนักงานทั้งหมดในระบบ',fn:'exportEmployeesCSV',csv:true},
+    {icon:'📅',title:'สถิติการลา',desc:'สรุปการลาแยกตามประเภทและพนักงาน',fn:'exportLeaveCSV',csv:true},
   ]
   document.getElementById('content').innerHTML = `<div class="view">
 <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px">
@@ -1528,9 +1930,59 @@ ${reports.map(r=>`<div class="report-card">
   <div class="report-icon">${r.icon}</div>
   <h3>${r.title}</h3>
   <p>${r.desc}</p>
-  <button class="btn btn-primary" onclick="${r.fn}()">${t('dl_csv')}</button>
+  <button class="btn btn-primary" onclick="${r.fn}()">${r.csv?t('dl_csv'):'📊 ดูรายงาน'}</button>
 </div>`).join('')}
 </div></div>`
+}
+
+function renderAnnualTax() {
+  const pr = buildPayroll()
+  const co = appSettings.company
+  const pp = appSettings.payroll
+  const year = parseInt(pp.periodYear||'2569') - 543
+  const html = `<div class="view">
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px">
+  <div>
+    <div style="font-size:18px;font-weight:800;color:#1e293b">รายงาน ภงด.1ก ประจำปี ${pp.periodYear} (พ.ศ.)</div>
+    <div style="font-size:13px;color:#64748b;margin-top:2px">${co.name} · เลขประจำตัวผู้เสียภาษี ${co.taxId}</div>
+  </div>
+  <button class="btn btn-primary" onclick="exportAnnualTaxCSV()">⬇️ Export CSV</button>
+</div>
+<div class="card">
+  <div class="tbl-wrap"><table>
+    <thead><tr><th>ลำดับ</th><th>รหัส</th><th>ชื่อ-สกุล</th><th>ตำแหน่ง</th><th>รายได้ต่อเดือน</th><th>รายได้สะสม (12 เดือน)</th><th>ภาษี/เดือน</th><th>ภาษีสะสม/ปี</th><th>SSF นำส่ง/ปี</th></tr></thead>
+    <tbody>${pr.map((e,i)=>`<tr>
+      <td style="text-align:center;color:#64748b">${i+1}</td>
+      <td style="font-family:monospace;font-size:12px;color:#64748b">${e.id}</td>
+      <td><div class="td-name"><div class="avatar" style="background:${avatarColor(e.name)};width:28px;height:28px;font-size:11px">${e.name[0]}</div>${e.name}</div></td>
+      <td style="font-size:12px">${e.pos||'-'}</td>
+      <td style="font-weight:600">฿${fmt(e.gross)}</td>
+      <td style="font-weight:700;color:#4f46e5">฿${fmt(e.gross*12)}</td>
+      <td style="color:#ef4444">฿${fmt(e.tax)}</td>
+      <td style="color:#ef4444;font-weight:700">฿${fmt(e.tax*12)}</td>
+      <td style="color:#0ea5e9">฿${fmt(e.ssf*12)}</td>
+    </tr>`).join('')}</tbody>
+    <tfoot><tr style="background:#f8fafc;font-weight:800">
+      <td colspan="4">รวมทั้งหมด ${pr.length} คน</td>
+      <td>฿${fmt(pr.reduce((s,e)=>s+e.gross,0))}</td>
+      <td style="color:#4f46e5">฿${fmt(pr.reduce((s,e)=>s+e.gross*12,0))}</td>
+      <td>฿${fmt(pr.reduce((s,e)=>s+e.tax,0))}</td>
+      <td style="color:#ef4444">฿${fmt(pr.reduce((s,e)=>s+e.tax*12,0))}</td>
+      <td style="color:#0ea5e9">฿${fmt(pr.reduce((s,e)=>s+e.ssf*12,0))}</td>
+    </tr></tfoot>
+  </table></div>
+</div></div>`
+  document.getElementById('content').innerHTML = html
+  document.querySelectorAll('.sb-item').forEach(el=>el.classList.remove('active'))
+  document.getElementById('hdr-title').textContent = 'รายงาน ภงด.1ก'
+  document.getElementById('hdr-sub').textContent = `ประจำปี ${pp.periodYear}`
+}
+
+function exportAnnualTaxCSV() {
+  const pr = buildPayroll(), pp = appSettings.payroll
+  exportCSV(`tax_annual_pnd1kor_${pp.periodYear}.csv`,
+    ['ลำดับ','รหัส','ชื่อ-สกุล','ตำแหน่ง','รายได้/เดือน','รายได้สะสม/ปี','ภาษี/เดือน','ภาษีสะสม/ปี','SSF/ปี'],
+    pr.map((e,i)=>[i+1,e.id,e.name,e.pos||'',e.gross,e.gross*12,e.tax,e.tax*12,e.ssf*12]))
 }
 
 // ════════════════════════════════════════════════════
@@ -1709,6 +2161,440 @@ function exportBankCSV() {
     ['รหัส','ชื่อ-สกุล','ธนาคาร','เลขบัญชี','จำนวนเงิน','สกุลเงิน','หมายเหตุ'],
     pr.map(e=>[e.id,e.name,e.bank||'',e.acc||'',e.net,'THB',`เงินเดือน ${pp.periodMonth} ${pp.periodYear}`]))
 }
+
+// ════════════════════════════════════════════════════
+// LOGIN SYSTEM
+// ════════════════════════════════════════════════════
+function checkLogin() {
+  const saved = localStorage.getItem('ppUser')
+  if (saved) {
+    try {
+      currentUser = JSON.parse(saved)
+      updateUserUI()
+      document.getElementById('login-overlay').style.display = 'none'
+      return
+    } catch {}
+  }
+  if (users.length === 0) {
+    currentUser = { name:'Admin', username:'admin', role:'admin' }
+    updateUserUI()
+    document.getElementById('login-overlay').style.display = 'none'
+    return
+  }
+  document.getElementById('login-overlay').style.display = 'flex'
+}
+function doLogin() {
+  const uname = document.getElementById('login-user').value.trim()
+  const pass  = document.getElementById('login-pass').value
+  const found = users.find(u => u.username === uname && u.password === pass)
+  if (!found) { showToast('❌ ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง', 'error'); return }
+  currentUser = found
+  localStorage.setItem('ppUser', JSON.stringify({ id:found.id, name:found.name, username:found.username, role:found.role }))
+  document.getElementById('login-overlay').style.display = 'none'
+  updateUserUI()
+  showToast('✅ ยินดีต้อนรับ ' + found.name, 'success')
+  renderView()
+}
+function doLogout() {
+  showConfirm('ออกจากระบบ "' + (currentUser?.name||'') + '"?', () => {
+    localStorage.removeItem('ppUser')
+    currentUser = null
+    document.getElementById('login-overlay').style.display = 'flex'
+    document.getElementById('login-user').value = ''
+    document.getElementById('login-pass').value = ''
+  }, '🔐')
+}
+function updateUserUI() {
+  if (!currentUser) return
+  const initials = currentUser.name.split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase() || 'HR'
+  const el1 = document.getElementById('user-avatar-hdr')
+  const el2 = document.getElementById('user-name-hdr')
+  const el3 = document.getElementById('sb-footer-user')
+  if (el1) el1.textContent = initials
+  if (el2) el2.textContent = currentUser.name
+  if (el3) el3.innerHTML = `👤 ${currentUser.name}<br><span style="opacity:.6">${currentUser.role==='admin'?'ผู้ดูแลระบบ':'HR'}</span>`
+}
+
+// ════════════════════════════════════════════════════
+// LIVE CLOCK
+// ════════════════════════════════════════════════════
+function startClock() {
+  function tick() {
+    const el = document.getElementById('live-clock')
+    if (el) el.textContent = new Date().toLocaleString('sv-SE', { timeZone: TZ }).split(' ')[1].slice(0,8)
+  }
+  tick()
+  setInterval(tick, 1000)
+}
+startClock()
+
+// ════════════════════════════════════════════════════
+// CUSTOM CONFIRM
+// ════════════════════════════════════════════════════
+function showConfirm(msg, onYes, icon='⚠️', okLabel='ยืนยัน', okClass='btn-danger') {
+  _confirmCb = onYes
+  document.getElementById('confirm-icon').textContent = icon
+  document.getElementById('confirm-msg').textContent = msg
+  const btn = document.getElementById('confirm-ok-btn')
+  btn.textContent = okLabel
+  btn.className = 'btn ' + okClass + ' ' + 'flex:1'
+  btn.style.flex = '1'
+  document.getElementById('confirm-modal').classList.add('open')
+}
+function confirmOk() {
+  document.getElementById('confirm-modal').classList.remove('open')
+  if (_confirmCb) { _confirmCb(); _confirmCb = null }
+}
+function closeConfirm() {
+  document.getElementById('confirm-modal').classList.remove('open')
+  _confirmCb = null
+}
+
+// ════════════════════════════════════════════════════
+// NOTIFICATIONS / ALERTS
+// ════════════════════════════════════════════════════
+function getAlerts() {
+  const alerts = []
+  const pending = leaveRecords.filter(l=>l.status==='pending')
+  if (pending.length > 0)
+    alerts.push({ icon:'📅', title:`มีใบลา ${pending.length} รายการรออนุมัติ`, desc:'คลิกเพื่อดูรายการลา', action:"navigate('leave')",
+      color:'#fef3c7', border:'#f59e0b', textColor:'#92400e' })
+  const pendingOT = otRecords.filter(o=>o.status==='pending')
+  if (pendingOT.length > 0)
+    alerts.push({ icon:'⏰', title:`OT รออนุมัติ ${pendingOT.length} รายการ`, desc:'คลิกเพื่อดูรายการ OT', action:"navigate('ot')",
+      color:'#dbeafe', border:'#3b82f6', textColor:'#1d4ed8' })
+  const pp = appSettings.payroll
+  const today = parseInt(new Date().toLocaleString('sv-SE',{timeZone:TZ}).split('-')[2])
+  if (today >= pp.payDay - 3 && today <= pp.payDay)
+    alerts.push({ icon:'💰', title:`วันจ่ายเงินเดือนวันที่ ${pp.payDay} ${pp.periodMonth} ${pp.periodYear}`, desc:'ใกล้ถึงวันจ่ายเงินเดือนแล้ว', action:"navigate('payroll')",
+      color:'#d1fae5', border:'#10b981', textColor:'#065f46' })
+  if (employees.length === 0)
+    alerts.push({ icon:'👤', title:'ยังไม่มีข้อมูลพนักงาน', desc:'เพิ่มพนักงานหรือนำเข้าจาก CSV', action:"navigate('employees')",
+      color:'#f1f5f9', border:'#94a3b8', textColor:'#475569' })
+  return alerts
+}
+function updateNotifBell() {
+  const alerts = getAlerts()
+  const count = document.getElementById('notif-count')
+  if (!count) return
+  if (alerts.length > 0) { count.textContent = alerts.length; count.classList.add('show') }
+  else count.classList.remove('show')
+}
+function toggleNotifications() {
+  const dd = document.getElementById('notif-dropdown')
+  if (dd.classList.contains('show')) { dd.classList.remove('show'); return }
+  const alerts = getAlerts()
+  dd.innerHTML = `<div class="notif-hdr"><span>การแจ้งเตือน</span><span style="font-size:12px;font-weight:400;color:#94a3b8">${alerts.length} รายการ</span></div>`
+  if (alerts.length === 0) {
+    dd.innerHTML += '<div class="notif-empty">✅ ไม่มีการแจ้งเตือน</div>'
+  } else {
+    alerts.forEach(a => {
+      dd.innerHTML += `<div class="notif-item" onclick="dd=document.getElementById('notif-dropdown');dd.classList.remove('show');${a.action||''}">
+        <div class="notif-item-icon">${a.icon}</div>
+        <div class="notif-item-body">
+          <div class="notif-item-title">${a.title}</div>
+          <div class="notif-item-sub">${a.desc}</div>
+        </div>
+      </div>`
+    })
+  }
+  dd.classList.add('show')
+}
+document.addEventListener('click', e => {
+  const wrap = document.querySelector('.notif-wrap')
+  if (wrap && !wrap.contains(e.target)) document.getElementById('notif-dropdown')?.classList.remove('show')
+})
+
+// ════════════════════════════════════════════════════
+// GLOBAL SEARCH
+// ════════════════════════════════════════════════════
+function openSearch() {
+  document.getElementById('search-overlay').classList.add('open')
+  document.getElementById('search-input').value = ''
+  document.getElementById('search-results').innerHTML = '<div class="search-empty">🔍 พิมพ์เพื่อค้นหา...</div>'
+  setTimeout(() => document.getElementById('search-input').focus(), 50)
+}
+function closeSearch() { document.getElementById('search-overlay').classList.remove('open') }
+function doSearch(q) {
+  q = q.trim()
+  const res = document.getElementById('search-results')
+  if (!q) { res.innerHTML = '<div class="search-empty">🔍 พิมพ์เพื่อค้นหา...</div>'; return }
+  const items = []
+  employees.forEach(e => {
+    if (e.name.includes(q)||e.id.includes(q)||(e.pos||'').includes(q)||(e.dept||'').includes(q)||(e.email||'').includes(q))
+      items.push({ icon:'👤', title:e.name, sub:`${e.id} · ${e.dept} · ${e.pos||''}`, action:`closeSearch();navigate('employees')` })
+  })
+  leaveRecords.forEach(l => {
+    const name = nameOf(l.empId)
+    if (name.includes(q)||l.type.includes(q)||(l.reason||'').includes(q))
+      items.push({ icon:'📅', title:`${name} — ${l.type}`, sub:`${l.start} ถึง ${l.end} · ${l.status}`, action:`closeSearch();navigate('leave')` })
+  })
+  otRecords.forEach(o => {
+    const name = nameOf(o.empId)
+    if (name.includes(q)||(o.note||'').includes(q))
+      items.push({ icon:'⏰', title:`OT: ${name}`, sub:`${o.date} · ${o.hours} ชั่วโมง ×${o.type} · ${o.status}`, action:`closeSearch();navigate('ot')` })
+  })
+  if (items.length === 0) { res.innerHTML = `<div class="search-empty">ไม่พบผลลัพธ์สำหรับ "${escHtml(q)}"</div>`; return }
+  res.innerHTML = items.slice(0,12).map(it => `<div class="search-result-item" onclick="${it.action}">
+    <span style="font-size:20px">${it.icon}</span>
+    <div><div style="font-size:13px;font-weight:600;color:#1e293b">${escHtml(it.title)}</div>
+    <div style="font-size:11px;color:#94a3b8;margin-top:2px">${escHtml(it.sub)}</div></div>
+  </div>`).join('')
+}
+document.addEventListener('keydown', e => {
+  if ((e.ctrlKey||e.metaKey) && e.key==='k') { e.preventDefault(); openSearch() }
+  if (e.key==='Escape') { closeSearch(); closeConfirm() }
+})
+
+// ════════════════════════════════════════════════════
+// AUDIT LOG
+// ════════════════════════════════════════════════════
+function addAuditLog(action) {
+  if (!action || action === 'refresh') return
+  const entry = {
+    id: uid(), action,
+    user: currentUser?.name || 'ระบบ',
+    at: new Date().toISOString(),
+    view: currentView
+  }
+  auditLog.unshift(entry)
+  if (auditLog.length > 200) auditLog = auditLog.slice(0, 200)
+}
+function renderAuditLog() {
+  const html = `<div class="view"><div class="card">
+<div class="section-hdr"><div class="section-title">📋 Audit Log — ประวัติการเปลี่ยนแปลงข้อมูล</div>
+  <button class="btn btn-outline btn-sm" onclick="exportAuditCSV()">⬇️ Export CSV</button></div>
+${auditLog.length===0?'<div class="empty-state"><div class="icon">📋</div><p>ยังไม่มีประวัติการเปลี่ยนแปลง</p></div>':
+  auditLog.map(a=>`<div class="audit-item">
+    <div class="audit-dot"></div>
+    <div>
+      <div class="audit-action">${escHtml(a.action)}</div>
+      <div class="audit-meta">👤 ${escHtml(a.user)} · 🕐 ${bkkDateTime(new Date(a.at))}</div>
+    </div>
+  </div>`).join('')}
+</div></div>`
+  document.getElementById('content').innerHTML = html
+}
+function exportAuditCSV() {
+  exportCSV('audit_log.csv',
+    ['วันที่-เวลา','ผู้ใช้','การกระทำ','หน้า'],
+    auditLog.map(a => [bkkDateTime(new Date(a.at)), a.user, a.action, a.view||'']))
+}
+
+// ════════════════════════════════════════════════════
+// PAYROLL HISTORY
+// ════════════════════════════════════════════════════
+function savePayrollSnapshot() {
+  const pr = buildPayroll()
+  const pp = appSettings.payroll
+  const existing = payrollHistory.findIndex(h => h.period === pp.periodMonth + ' ' + pp.periodYear)
+  const snapshot = {
+    id: uid(),
+    period: pp.periodMonth + ' ' + pp.periodYear,
+    periodMonth: pp.periodMonth,
+    periodYear: pp.periodYear,
+    savedAt: new Date().toISOString(),
+    savedBy: currentUser?.name || 'ระบบ',
+    empCount: pr.length,
+    totGross: pr.reduce((s,e)=>s+e.gross,0),
+    totTax:   pr.reduce((s,e)=>s+e.tax,0),
+    totNet:   pr.reduce((s,e)=>s+e.net,0),
+    totSSF:   pr.reduce((s,e)=>s+e.ssf,0),
+    detail: pr.map(e=>({ id:e.id, name:e.name, dept:e.dept, gross:e.gross, tax:e.tax, ssf:e.ssf, net:e.net }))
+  }
+  if (existing >= 0) {
+    showConfirm(`งวด ${snapshot.period} มีข้อมูลอยู่แล้ว ต้องการบันทึกทับหรือไม่?`, () => {
+      payrollHistory[existing] = snapshot
+      emitUpdate('บันทึกประวัติเงินเดือน: ' + snapshot.period)
+      showToast('📌 บันทึกประวัติงวด ' + snapshot.period + ' แล้ว', 'success')
+    }, '📌', 'บันทึกทับ', 'btn-primary')
+  } else {
+    payrollHistory.unshift(snapshot)
+    if (payrollHistory.length > 36) payrollHistory = payrollHistory.slice(0, 36)
+    emitUpdate('บันทึกประวัติเงินเดือน: ' + snapshot.period)
+    showToast('📌 บันทึกประวัติงวด ' + snapshot.period + ' แล้ว', 'success')
+  }
+}
+function renderHistory() {
+  const co = appSettings.company
+  document.getElementById('content').innerHTML = `<div class="view">
+<div class="section-hdr">
+  <div class="section-title">📂 ประวัติเงินเดือนย้อนหลัง</div>
+  <button class="btn btn-primary btn-sm" onclick="savePayrollSnapshot()">📌 บันทึกงวดปัจจุบัน</button>
+</div>
+${payrollHistory.length === 0
+  ? '<div class="card"><div class="empty-state"><div class="icon">📂</div><p>ยังไม่มีประวัติเงินเดือน — กด "บันทึกงวดปัจจุบัน" หลังจากคำนวณเงินเดือน</p></div></div>'
+  : `<div class="card">${payrollHistory.map(h => `
+<div class="history-item" onclick="viewHistoryDetail('${h.id}')">
+  <div class="history-icon">📋</div>
+  <div class="history-body">
+    <div class="history-period">${h.period}</div>
+    <div class="history-meta">💾 บันทึกเมื่อ ${bkkDateTime(new Date(h.savedAt))} · โดย ${escHtml(h.savedBy)} · ${h.empCount} คน</div>
+  </div>
+  <div>
+    <div class="history-total">฿${fmt(h.totNet)}</div>
+    <div style="font-size:11px;color:#94a3b8;text-align:right;margin-top:2px">สุทธิ</div>
+  </div>
+</div>`).join('')}</div>`}
+</div>`
+}
+function viewHistoryDetail(id) {
+  const h = payrollHistory.find(x=>x.id===id); if (!h) return
+  const html = `<div style="margin-top:16px">
+<div class="section-title" style="font-size:14px">รายละเอียดงวด ${h.period}</div>
+<div class="grid4" style="margin:12px 0">
+  <div class="kpi-card g1" style="padding:14px"><h3 style="font-size:11px">พนักงาน</h3><div class="val" style="font-size:20px">${h.empCount} คน</div></div>
+  <div class="kpi-card g2" style="padding:14px"><h3 style="font-size:11px">รายได้รวม</h3><div class="val" style="font-size:18px">฿${fmt(h.totGross)}</div></div>
+  <div class="kpi-card g5" style="padding:14px"><h3 style="font-size:11px">ภาษี</h3><div class="val" style="font-size:18px">฿${fmt(h.totTax)}</div></div>
+  <div class="kpi-card g3" style="padding:14px"><h3 style="font-size:11px">สุทธิ</h3><div class="val" style="font-size:18px">฿${fmt(h.totNet)}</div></div>
+</div>
+<div class="tbl-wrap"><table>
+  <thead><tr><th>รหัส</th><th>ชื่อ</th><th>แผนก</th><th>รายได้</th><th>SSF</th><th>ภาษี</th><th>สุทธิ</th></tr></thead>
+  <tbody>${(h.detail||[]).map(e=>`<tr>
+    <td style="font-family:monospace;font-size:12px;color:#64748b">${e.id}</td>
+    <td><div class="td-name"><div class="avatar" style="background:${avatarColor(e.name)};width:28px;height:28px;font-size:11px">${e.name[0]}</div>${e.name}</div></td>
+    <td>${deptBadge(e.dept)}</td>
+    <td>฿${fmt(e.gross)}</td>
+    <td style="color:#ef4444">-฿${fmt(e.ssf)}</td>
+    <td style="color:#ef4444">-฿${fmt(e.tax)}</td>
+    <td style="font-weight:700;color:#4f46e5">฿${fmt(e.net)}</td>
+  </tr>`).join('')}</tbody>
+</table></div></div>`
+  const content = document.getElementById('content')
+  const existing = content.querySelector('.history-detail')
+  if (existing) existing.remove()
+  const div = document.createElement('div')
+  div.className = 'history-detail card'
+  div.style.marginTop = '16px'
+  div.innerHTML = html
+  content.querySelector('.view').appendChild(div)
+}
+
+// ════════════════════════════════════════════════════
+// BONUS INLINE
+// ════════════════════════════════════════════════════
+function setBonusInline(empId, val) {
+  const v = parseFloat(val) || 0
+  if (v === 0) delete bonuses[empId]
+  else bonuses[empId] = v
+  emitUpdate('ตั้งโบนัส: ' + nameOf(empId) + ' = ฿' + fmt(v))
+}
+
+// ════════════════════════════════════════════════════
+// EMAIL PAYSLIP
+// ════════════════════════════════════════════════════
+function emailPayslip(e) {
+  if (!e) return
+  const co = appSettings.company
+  const pp = appSettings.payroll
+  const subject = encodeURIComponent(`สลิปเงินเดือน ${pp.periodMonth} ${pp.periodYear} — ${e.name}`)
+  const body = encodeURIComponent(
+`เรียน คุณ${e.name}
+
+สลิปเงินเดือนประจำเดือน ${pp.periodMonth} ${pp.periodYear}
+————————————————————
+เงินเดือน:       ฿${fmt(e.salary)}
+ค่า OT:          ฿${fmt(e.otPay)}
+เบี้ยเลี้ยง:    ฿${fmt(e.allowance)}${e.bonus>0?'\nโบนัส:           ฿'+fmt(e.bonus):''}
+รายได้รวม:       ฿${fmt(e.gross)}
+————————————————————
+ประกันสังคม:    -฿${fmt(e.ssf)}
+ภาษีเงินได้:   -฿${fmt(e.tax)}
+กองทุนสำรอง:   -฿${fmt(e.pf)}
+————————————————————
+เงินสุทธิ:       ฿${fmtFull(e.net)}
+
+จ่ายวันที่ ${pp.payDay} ${pp.periodMonth} ${pp.periodYear}
+ธนาคาร ${e.bank||'-'} เลขที่บัญชี ${e.acc||'-'}
+
+${co.name}
+โทร: ${co.phone} | อีเมล: ${co.email}
+`)
+  window.location.href = `mailto:${e.email||''}?subject=${subject}&body=${body}`
+  showToast('📧 เปิดโปรแกรมอีเมลแล้ว', 'info')
+}
+
+// ════════════════════════════════════════════════════
+// BATCH PRINT
+// ════════════════════════════════════════════════════
+function openBatchPrint() {
+  const pr = buildPayroll()
+  const co = appSettings.company
+  const pp = appSettings.payroll
+  document.getElementById('batch-print-content').innerHTML = pr.map(e => `
+<div style="border:1px solid #e2e8f0;border-radius:12px;margin-bottom:12px;overflow:hidden">
+  <div style="background:linear-gradient(135deg,#4f46e5,#7c3aed);color:#fff;padding:10px 16px;display:flex;justify-content:space-between;align-items:center">
+    <span style="font-weight:700">${e.name}</span>
+    <span style="font-size:12px;opacity:.8">${e.id} · ${e.dept}</span>
+  </div>
+  <div style="padding:12px 16px;display:grid;grid-template-columns:repeat(3,1fr);gap:8px;font-size:13px">
+    <div><div style="color:#64748b;font-size:11px">เงินเดือน</div><div style="font-weight:600">฿${fmt(e.salary)}</div></div>
+    <div><div style="color:#64748b;font-size:11px">รายได้รวม</div><div style="font-weight:600">฿${fmt(e.gross)}</div></div>
+    <div><div style="color:#64748b;font-size:11px">สุทธิ</div><div style="font-weight:800;color:#4f46e5;font-size:15px">฿${fmt(e.net)}</div></div>
+  </div>
+</div>`).join('')
+  openModal('batch-print-modal')
+}
+function doBatchPrint() { window.print() }
+
+// ════════════════════════════════════════════════════
+// IMPORT CSV
+// ════════════════════════════════════════════════════
+function openImportModal() { importPendingData = null; document.getElementById('import-preview').innerHTML = ''; document.getElementById('import-confirm-btn').style.display='none'; openModal('import-modal') }
+function handleImportFile(e) { const f = e.target.files[0]; if (f) readImportCSV(f) }
+function handleImportDrop(e) { const f = e.dataTransfer.files[0]; if (f && f.name.endsWith('.csv')) readImportCSV(f) }
+function readImportCSV(file) {
+  const r = new FileReader()
+  r.onload = ev => parseImportCSV(ev.target.result)
+  r.readAsText(file, 'utf-8')
+}
+function parseImportCSV(text) {
+  const lines = text.replace(/\r/g,'').split('\n').filter(l=>l.trim())
+  if (lines.length < 2) { showToast('❌ ไฟล์ CSV ว่างเปล่าหรือรูปแบบไม่ถูกต้อง','error'); return }
+  const data = lines.slice(1).map(line => {
+    const cols = line.split(',').map(c=>c.replace(/^"|"$/g,'').replace(/""/g,'"').trim())
+    return { id:cols[0]||'', name:cols[1]||'', dept:cols[2]||'IT', pos:cols[3]||'', salary:parseFloat(cols[4])||0,
+      email:cols[5]||'', phone:cols[6]||'', bank:cols[7]||'KBank', acc:cols[8]||'', status:'active', start:'' }
+  }).filter(e => e.id && e.name && e.salary > 0)
+  if (data.length === 0) { showToast('❌ ไม่พบข้อมูลที่ถูกต้อง ตรวจสอบรูปแบบ CSV','error'); return }
+  importPendingData = data
+  const dups = data.filter(e => employees.find(ex => ex.id === e.id))
+  document.getElementById('import-preview').innerHTML = `
+<div style="background:#f0fdf4;border-radius:10px;padding:12px 14px;margin-bottom:10px">
+  <div style="font-weight:700;color:#059669;margin-bottom:6px">✅ พบข้อมูล ${data.length} รายการ${dups.length>0?` (ซ้ำ ${dups.length} รายการจะถูกอัปเดต)`:''}</div>
+</div>
+<div class="tbl-wrap" style="max-height:200px;overflow-y:auto"><table>
+  <thead><tr><th>รหัส</th><th>ชื่อ-สกุล</th><th>แผนก</th><th>เงินเดือน</th><th>หมายเหตุ</th></tr></thead>
+  <tbody>${data.map(e=>`<tr>
+    <td style="font-family:monospace;font-size:12px">${escHtml(e.id)}</td>
+    <td>${escHtml(e.name)}</td>
+    <td>${escHtml(e.dept)}</td>
+    <td>฿${fmt(e.salary)}</td>
+    <td>${employees.find(ex=>ex.id===e.id)?'<span style="color:#d97706;font-size:11px">อัปเดต</span>':'<span style="color:#059669;font-size:11px">ใหม่</span>'}</td>
+  </tr>`).join('')}</tbody>
+</table></div>`
+  document.getElementById('import-confirm-btn').style.display = 'inline-flex'
+}
+function confirmImport() {
+  if (!importPendingData) return
+  let added = 0, updated = 0
+  importPendingData.forEach(e => {
+    const idx = employees.findIndex(ex => ex.id === e.id)
+    if (idx >= 0) { employees[idx] = { ...employees[idx], ...e }; updated++ }
+    else { employees.push(e); added++ }
+  })
+  emitUpdate(`นำเข้า CSV: เพิ่ม ${added} / อัปเดต ${updated} รายการ`)
+  closeModal('import-modal')
+  renderEmployees()
+  showToast(`✅ นำเข้าสำเร็จ: เพิ่ม ${added} อัปเดต ${updated}`, 'success')
+}
+function downloadImportTemplate() {
+  exportCSV('import_template.csv',
+    ['รหัส','ชื่อ-สกุล','แผนก','ตำแหน่ง','เงินเดือน','อีเมล','โทร','ธนาคาร','เลขบัญชี'],
+    [['EMP099','ชื่อ นามสกุล','IT','Developer','35000','email@company.com','08x-xxx-xxxx','KBank','123-4-56789-0']])
+}
+
+// Init — clock is already started above; auth + notif run after data:init
 </script>
 </body>
 </html>

@@ -106,13 +106,65 @@ html[data-theme=dark] .payslip-hdr{background:linear-gradient(135deg,#1e293b,#0f
 /* ── Purple Theme ── */
 html[data-theme=purple] .sidebar{background:linear-gradient(160deg,#1a0533 0%,#3b0764 60%,#0d001e 100%)!important}
 html[data-theme=purple] .nav-item.active{background:linear-gradient(135deg,rgba(147,51,234,.85),rgba(192,38,211,.85))!important}
+
+/* ── MOBILE ── */
+#p-menu-toggle{display:none;align-items:center;justify-content:center;width:38px;height:38px;border-radius:8px;border:none;background:transparent;cursor:pointer;font-size:22px;color:#64748b;flex-shrink:0;line-height:1;transition:background .15s}
+#p-menu-toggle:hover{background:rgba(255,255,255,.1);color:#fff}
+#p-sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:899;backdrop-filter:blur(2px)}
+
+@media(max-width:768px){
+  body{overflow-y:auto!important;height:auto!important;min-height:100dvh!important}
+  #app-wrapper{flex-direction:column!important;height:auto!important;min-height:100dvh!important;overflow:visible!important}
+  #p-sidebar{position:fixed!important;left:-280px!important;top:0!important;height:100%!important;width:260px!important;z-index:900!important;transition:left .26s cubic-bezier(.4,0,.2,1)!important;box-shadow:none!important}
+  #p-sidebar.open{left:0!important;box-shadow:4px 0 28px rgba(0,0,0,.35)!important}
+  #p-sidebar-overlay.show{display:block}
+  #p-menu-toggle{display:flex}
+  #p-main{overflow:visible!important;height:auto!important;min-height:calc(100dvh - 56px)!important}
+  #p-header{padding:8px 12px!important;height:auto!important;min-height:56px!important;flex-wrap:wrap!important;gap:8px!important;position:sticky!important;top:0!important;z-index:50!important}
+  #p-header-right{gap:8px!important}
+  .lang-switcher-p{display:none!important}
+  #p-header-user{display:none!important}
+  #main-content{padding:12px 12px 24px!important;height:auto!important;overflow-y:visible!important}
+  .data-table th{padding:8px 10px!important;font-size:.7rem!important}
+  .data-table td{padding:8px 10px!important;font-size:.82rem!important}
+  .badge{font-size:.7rem!important;padding:2px 7px!important}
+  .modal-box{width:96%!important;max-width:100%!important;border-radius:14px!important;max-height:92dvh!important}
+  .modal-body{padding:16px!important}
+  .modal-footer{padding:12px 16px!important}
+  .section-title{font-size:1rem!important}
+  .chart-card{padding:16px!important}
+  /* Responsive grids */
+  #kpi-grid{grid-template-columns:1fr 1fr!important}
+  #dash-charts-grid{grid-template-columns:1fr!important}
+  #dash-bottom-grid{grid-template-columns:1fr!important}
+  #payroll-summary,#leave-kpi,#ot-kpi{grid-template-columns:1fr 1fr!important}
+  #report-cards{grid-template-columns:1fr 1fr!important}
+  #settings-content{grid-template-columns:1fr!important}
+  /* Section toolbars */
+  .view-hdr{flex-wrap:wrap!important;gap:12px!important}
+  .view-actions{flex-wrap:wrap!important;width:100%!important;justify-content:flex-start!important}
+  .search-input{width:100%!important}
+  #dept-filter{width:100%!important}
+  /* Modal form grids */
+  .modal-body [style*="grid-template-columns:1fr 1fr"]{grid-template-columns:1fr!important}
+}
+@media(max-width:480px){
+  body{overflow-y:auto!important}
+  .stat-card{border-radius:12px}
+  #kpi-grid{grid-template-columns:1fr!important}
+  #payroll-summary,#leave-kpi,#ot-kpi,#report-cards{grid-template-columns:1fr!important}
+  .tab-btn{padding:6px 12px!important;font-size:.8rem!important}
+}
 </style>
 </head>
 <body>
-<div style="display:flex;height:100vh;overflow:hidden">
+<div id="app-wrapper" style="display:flex;height:100vh;overflow:hidden">
+
+<!-- Sidebar Overlay (mobile) -->
+<div id="p-sidebar-overlay" onclick="closeSidebarP()"></div>
 
 <!-- SIDEBAR -->
-<div class="sidebar" style="width:260px;flex-shrink:0;display:flex;flex-direction:column;overflow:hidden">
+<div id="p-sidebar" class="sidebar" style="width:260px;flex-shrink:0;display:flex;flex-direction:column;overflow:hidden">
   <div style="padding:24px 20px 16px">
     <div style="display:flex;align-items:center;gap:12px">
       <div style="width:42px;height:42px;border-radius:12px;background:linear-gradient(135deg,#818cf8,#a78bfa);display:flex;align-items:center;justify-content:center;font-size:1.3rem;box-shadow:0 4px 12px rgba(99,102,241,.4)">💎</div>
@@ -165,27 +217,26 @@ html[data-theme=purple] .nav-item.active{background:linear-gradient(135deg,rgba(
     </div>
   </div>
   <div style="padding:16px;border-top:1px solid rgba(255,255,255,.08)">
-    <div style="background:linear-gradient(135deg,rgba(99,102,241,.3),rgba(139,92,246,.3));border-radius:12px;padding:14px;border:1px solid rgba(99,102,241,.3)">
+    <div id="sidebar-period" style="background:linear-gradient(135deg,rgba(99,102,241,.3),rgba(139,92,246,.3));border-radius:12px;padding:14px;border:1px solid rgba(99,102,241,.3)">
       <div style="color:#a5b4fc;font-size:.75rem;font-weight:600">งวดปัจจุบัน</div>
-      <div style="color:#fff;font-weight:700;font-size:.95rem;margin-top:2px">มิถุนายน 2568</div>
-      <div style="margin-top:8px">
-        <div class="progress-bar"><div class="progress-fill" style="width:60%;background:linear-gradient(90deg,#818cf8,#a78bfa)"></div></div>
-        <div style="color:rgba(255,255,255,.5);font-size:.72rem;margin-top:4px">วันที่ 15 จาก 30</div>
-      </div>
+      <div style="color:#fff;font-weight:700;font-size:.95rem;margin-top:2px">กำลังโหลด...</div>
     </div>
   </div>
 </div>
 
 <!-- MAIN AREA -->
-<div style="flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0">
+<div id="p-main" style="flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0">
 
   <!-- HEADER -->
-  <div class="glass-header" style="padding:0 28px;height:64px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0">
-    <div>
-      <div id="page-title" style="font-size:1.15rem;font-weight:700;color:#1e293b">แดชบอร์ด</div>
-      <div id="page-sub" style="font-size:.78rem;color:#94a3b8">บริษัท เทค ซอลูชั่น จำกัด — สำนักงานใหญ่</div>
+  <div id="p-header" class="glass-header" style="padding:0 28px;height:64px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0">
+    <div style="display:flex;align-items:center;gap:10px;min-width:0">
+      <button id="p-menu-toggle" onclick="toggleSidebarP()" aria-label="เมนู">☰</button>
+      <div style="min-width:0">
+        <div id="page-title" style="font-size:1.15rem;font-weight:700;color:#1e293b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">แดชบอร์ด</div>
+        <div id="page-sub" style="font-size:.78rem;color:#94a3b8">บริษัท เทค ซอลูชั่น จำกัด — สำนักงานใหญ่</div>
+      </div>
     </div>
-    <div style="display:flex;align-items:center;gap:12px">
+    <div id="p-header-right" style="display:flex;align-items:center;gap:12px">
       <div style="position:relative;cursor:pointer" onclick="showToast(tp('no_notif'))">
         <div style="width:36px;height:36px;border-radius:10px;background:#f1f5f9;display:flex;align-items:center;justify-content:center">
           <svg width="18" height="18" fill="none" stroke="#64748b" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
@@ -201,8 +252,8 @@ html[data-theme=purple] .nav-item.active{background:linear-gradient(135deg,rgba(
         <button class="lang-btn-p active" id="pb-th" onclick="setLangP('th')">TH</button>
         <button class="lang-btn-p"        id="pb-en" onclick="setLangP('en')">EN</button>
       </div>
-      <div style="height:28px;width:1px;background:#e2e8f0"></div>
-      <div style="display:flex;align-items:center;gap:10px;cursor:pointer">
+      <div id="p-header-user" style="display:flex;align-items:center;gap:10px;cursor:pointer">
+        <div style="height:28px;width:1px;background:#e2e8f0"></div>
         <div class="avatar" style="width:34px;height:34px;background:linear-gradient(135deg,#f093fb,#f5576c);font-size:.82rem">ว</div>
         <div>
           <div style="font-size:.83rem;font-weight:600;color:#1e293b">วิภาดา สุขใจ</div>
@@ -218,11 +269,11 @@ html[data-theme=purple] .nav-item.active{background:linear-gradient(135deg,rgba(
     <!-- DASHBOARD -->
     <div id="view-dashboard" class="view active">
       <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:24px" id="kpi-grid"></div>
-      <div style="display:grid;grid-template-columns:3fr 2fr;gap:20px;margin-bottom:24px">
+      <div id="dash-charts-grid" style="display:grid;grid-template-columns:3fr 2fr;gap:20px;margin-bottom:24px">
         <div class="chart-card">
           <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:20px">
             <div><div class="section-title" style="font-size:1rem">แนวโน้มเงินเดือนรายเดือน</div><div class="section-sub">ย้อนหลัง 6 เดือน</div></div>
-            <span class="badge badge-blue">2568</span>
+            <span class="badge badge-blue" id="dash-year-badge">—</span>
           </div>
           <canvas id="chart-trend" height="180"></canvas>
         </div>
@@ -231,10 +282,10 @@ html[data-theme=purple] .nav-item.active{background:linear-gradient(135deg,rgba(
           <canvas id="chart-dept" height="180"></canvas>
         </div>
       </div>
-      <div style="display:grid;grid-template-columns:2fr 1fr;gap:20px">
+      <div id="dash-bottom-grid" style="display:grid;grid-template-columns:2fr 1fr;gap:20px">
         <div class="stat-card" style="padding:0;overflow:hidden">
           <div style="padding:18px 20px;border-bottom:1px solid #f1f5f9;display:flex;justify-content:space-between;align-items:center">
-            <div><div class="section-title" style="font-size:1rem">เงินเดือนล่าสุด</div><div class="section-sub">มิถุนายน 2568</div></div>
+            <div><div class="section-title" style="font-size:1rem">เงินเดือนล่าสุด</div><div class="section-sub" id="dash-period-sub">—</div></div>
             <button class="btn btn-primary btn-sm" onclick="navigate('payroll')">ดูทั้งหมด</button>
           </div>
           <div style="overflow-x:auto">
@@ -250,9 +301,9 @@ html[data-theme=purple] .nav-item.active{background:linear-gradient(135deg,rgba(
 
     <!-- EMPLOYEES -->
     <div id="view-employees" class="view">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+      <div class="view-hdr" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
         <div><div class="section-title">ข้อมูลพนักงาน</div><div class="section-sub">ทั้งหมด <span id="emp-count">0</span> คน</div></div>
-        <div style="display:flex;gap:10px;align-items:center">
+        <div class="view-actions" style="display:flex;gap:10px;align-items:center">
           <div style="position:relative">
             <svg style="position:absolute;left:12px;top:50%;transform:translateY(-50%);color:#94a3b8" width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
             <input class="search-input" type="text" placeholder="ค้นหาพนักงาน..." id="emp-search" oninput="filterEmployees()">
@@ -274,9 +325,9 @@ html[data-theme=purple] .nav-item.active{background:linear-gradient(135deg,rgba(
 
     <!-- PAYROLL -->
     <div id="view-payroll" class="view">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+      <div class="view-hdr" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
         <div><div class="section-title">คำนวณเงินเดือน</div><div class="section-sub">ประมวลผลงวดเงินเดือนประจำเดือน</div></div>
-        <div style="display:flex;gap:10px;align-items:center">
+        <div class="view-actions" style="display:flex;gap:10px;align-items:center">
           <select class="form-select" style="width:180px;padding-right:36px" id="payroll-month">
             <option value="2568-06">มิถุนายน 2568</option>
             <option value="2568-05">พฤษภาคม 2568</option>
@@ -296,7 +347,7 @@ html[data-theme=purple] .nav-item.active{background:linear-gradient(135deg,rgba(
 
     <!-- LEAVE -->
     <div id="view-leave" class="view">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+      <div class="view-hdr" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
         <div><div class="section-title">การลา</div><div class="section-sub">บริหารจัดการการลาพนักงาน</div></div>
         <button class="btn btn-primary" onclick="openLeaveModal()">
           <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
@@ -304,7 +355,7 @@ html[data-theme=purple] .nav-item.active{background:linear-gradient(135deg,rgba(
         </button>
       </div>
       <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px" id="leave-kpi"></div>
-      <div style="display:flex;gap:8px;margin-bottom:16px" id="leave-tabs">
+      <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap" id="leave-tabs">
         <button class="tab-btn active" onclick="filterLeave('all',this)">ทั้งหมด</button>
         <button class="tab-btn" onclick="filterLeave('pending',this)">รออนุมัติ</button>
         <button class="tab-btn" onclick="filterLeave('approved',this)">อนุมัติแล้ว</button>
@@ -317,7 +368,7 @@ html[data-theme=purple] .nav-item.active{background:linear-gradient(135deg,rgba(
 
     <!-- OT -->
     <div id="view-ot" class="view">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+      <div class="view-hdr" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
         <div><div class="section-title">บันทึกล่วงเวลา (OT)</div><div class="section-sub">จัดการการทำงานล่วงเวลาพนักงาน</div></div>
         <button class="btn btn-primary" onclick="openOtModal()">
           <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
@@ -626,7 +677,28 @@ let chartTrend = null, chartDept = null;
 
 // ==================== UTILS ====================
 const TZP = 'Asia/Bangkok'
-const todayTHP = () => new Date().toLocaleDateString('en-CA', { timeZone: TZP })
+const todayTHP = () => new Date().toLocaleString('sv-SE', { timeZone: TZP }).split(' ')[0]
+const TH_MONTH_FULL  = ['มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน','กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม']
+const TH_MONTH_SHORT = ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.']
+function nowBKK() {
+  const s = new Date().toLocaleString('sv-SE', { timeZone: TZP }) // "2026-06-16 14:30:00"
+  const [y, m, d] = s.split(' ')[0].split('-').map(Number)
+  return { y, m, d, beYear: y+543, monthFull: TH_MONTH_FULL[m-1], monthShort: TH_MONTH_SHORT[m-1],
+           totalDays: new Date(y, m, 0).getDate(), payDay: 30 }
+}
+function updateSidebarPeriod() {
+  const t = nowBKK()
+  const pct = Math.round(t.d / t.totalDays * 100)
+  const el = document.getElementById('sidebar-period')
+  if (!el) return
+  el.innerHTML = `
+    <div style="color:#a5b4fc;font-size:.75rem;font-weight:600">งวดปัจจุบัน</div>
+    <div style="color:#fff;font-weight:700;font-size:.95rem;margin-top:2px">${t.monthFull} ${t.beYear}</div>
+    <div style="margin-top:8px">
+      <div class="progress-bar"><div class="progress-fill" style="width:${pct}%;background:linear-gradient(90deg,#818cf8,#a78bfa)"></div></div>
+      <div style="color:rgba(255,255,255,.5);font-size:.72rem;margin-top:4px">วันที่ ${t.d} จาก ${t.totalDays}</div>
+    </div>`
+}
 const fmt = n => Number(n||0).toLocaleString('th-TH',{minimumFractionDigits:2,maximumFractionDigits:2});
 const fmtInt = n => Number(n||0).toLocaleString('th-TH');
 const empName = id => {const e=employees.find(x=>x.id===id);return e?(e.name||'?'):(id||'?')};
@@ -667,6 +739,14 @@ function buildPayroll(){
 // ==================== NAVIGATE ====================
 const pageTitles={dashboard:'แดชบอร์ด',employees:'ข้อมูลพนักงาน',payroll:'คำนวณเงินเดือน',leave:'การลา',ot:'ล่วงเวลา (OT)',reports:'รายงาน',settings:'ตั้งค่าระบบ'};
 const pageSubs={dashboard:'ภาพรวมระบบเงินเดือนประจำเดือน',employees:'จัดการข้อมูลพนักงานทั้งหมด',payroll:'ประมวลผลและตรวจสอบเงินเดือน',leave:'บริหารจัดการการลาพนักงาน',ot:'บันทึกและอนุมัติการทำงานล่วงเวลา',reports:'ออกรายงานและเอกสารต่างๆ',settings:'กำหนดค่าระบบเงินเดือน'};
+function toggleSidebarP(){
+  document.getElementById('p-sidebar').classList.toggle('open');
+  document.getElementById('p-sidebar-overlay').classList.toggle('show');
+}
+function closeSidebarP(){
+  document.getElementById('p-sidebar').classList.remove('open');
+  document.getElementById('p-sidebar-overlay').classList.remove('show');
+}
 function navigate(view){
   document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
@@ -676,10 +756,17 @@ function navigate(view){
   document.getElementById('page-sub').textContent=pageSubs[view]||'บริษัท เทค ซอลูชั่น จำกัด — สำนักงานใหญ่';
   const renders={dashboard:renderDashboard,employees:renderEmployees,payroll:renderPayroll,leave:renderLeave,ot:renderOt,reports:renderReports,settings:renderSettings};
   if(renders[view])renders[view]();
+  closeSidebarP();
 }
 
 // ==================== DASHBOARD ====================
 function renderDashboard(){
+  const _t = nowBKK()
+  const _period = `${_t.monthFull} ${_t.beYear}`
+  const el_yr = document.getElementById('dash-year-badge')
+  const el_sub = document.getElementById('dash-period-sub')
+  if (el_yr)  el_yr.textContent  = String(_t.beYear)
+  if (el_sub) el_sub.textContent = _period
   buildPayroll();
   const active=employees.filter(e=>e.status==='active').length;
   const totalSalary=payrollData.reduce((s,p)=>s+p.salary,0);
@@ -839,13 +926,14 @@ function calcPayroll(){buildPayroll();renderPayroll();showToast('คำนวณ
 
 function showPayslip(p){
   const emp=empById(p.empId)||{};
+  const _t=nowBKK(); const _period=`${_t.monthFull} ${_t.beYear}`; const _payDay=`${_t.payDay} ${_t.monthShort} ${_t.beYear}`;
   document.getElementById('payslip-content').innerHTML=`
     <div class="payslip-wrap">
       <div style="text-align:center;margin-bottom:20px;padding-bottom:16px;border-bottom:2px solid #4f46e5">
         <div style="font-size:1.6rem">💎</div>
         <div style="font-weight:800;font-size:1.15rem;color:#1e293b;margin-top:4px">บริษัท เทค ซอลูชั่น จำกัด</div>
         <div style="color:#64748b;font-size:.83rem">เลขที่ผู้เสียภาษี 0105564123456</div>
-        <div style="background:linear-gradient(135deg,#4f46e5,#7c3aed);color:#fff;padding:6px 20px;border-radius:100px;display:inline-block;font-weight:700;margin-top:10px;font-size:.88rem">ใบแจ้งการจ่ายเงินเดือน — มิถุนายน 2568</div>
+        <div style="background:linear-gradient(135deg,#4f46e5,#7c3aed);color:#fff;padding:6px 20px;border-radius:100px;display:inline-block;font-weight:700;margin-top:10px;font-size:.88rem">ใบแจ้งการจ่ายเงินเดือน — ${_period}</div>
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px;background:#f8fafc;padding:16px;border-radius:12px">
         <div>
@@ -880,7 +968,7 @@ function showPayslip(p){
       <div style="background:linear-gradient(135deg,#4f46e5,#7c3aed);border-radius:14px;padding:20px;text-align:center;color:#fff">
         <div style="font-size:.85rem;opacity:.8;margin-bottom:4px">ยอดจ่ายสุทธิ (Net Pay)</div>
         <div style="font-size:2rem;font-weight:800;letter-spacing:-1px">฿${fmt(p.net)}</div>
-        <div style="font-size:.78rem;opacity:.7;margin-top:4px">โอนเข้าบัญชี ${emp.bank||'—'} ภายในวันที่ 30 มิ.ย. 2568</div>
+        <div style="font-size:.78rem;opacity:.7;margin-top:4px">โอนเข้าบัญชี ${emp.bank||'—'} ภายในวันที่ ${_payDay}</div>
       </div>
       <div style="text-align:center;margin-top:14px;font-size:.75rem;color:#94a3b8">เอกสารฉบับนี้ออกโดยระบบ PayrollPro — ไม่ต้องมีลายเซ็น</div>
     </div>`;
@@ -1004,7 +1092,7 @@ function exportCSV(filename,headers,rows){
 }
 function exportPayrollCSV(){
   buildPayroll()
-  exportCSV('payroll_มิถุนายน_2568.csv',
+  const {monthFull:_m,beYear:_y}=nowBKK(); exportCSV(`payroll_${_m}_${_y}.csv`,
     ['รหัส','ชื่อ-สกุล','แผนก','ตำแหน่ง','เงินเดือน','OT','เบี้ยเลี้ยง','รายได้รวม','SSF','ภาษี','PF','สุทธิ'],
     payrollData.map(p=>[p.empId,p.name,p.dept,p.pos,p.salary,p.otPay,p.allowance,p.gross,p.ssf,p.tax,p.pf,p.net]))
 }
@@ -1029,19 +1117,19 @@ function exportOtCSV(){
 }
 function exportTaxCSV(){
   buildPayroll()
-  exportCSV('tax_pnd1_มิถุนายน_2568.csv',
+  const {monthFull:_m,beYear:_y}=nowBKK(); exportCSV(`tax_pnd1_${_m}_${_y}.csv`,
     ['รหัส','ชื่อ-สกุล','รายได้รวม/เดือน','ภาษี/เดือน','ภาษีสะสม/ปี (ประมาณ)'],
     payrollData.map(p=>[p.empId,p.name,p.gross,p.tax,p.tax*12]))
 }
 function exportSSFCSV(){
   buildPayroll()
-  exportCSV('ssf_มิถุนายน_2568.csv',
+  const {monthFull:_m,beYear:_y}=nowBKK(); exportCSV(`ssf_${_m}_${_y}.csv`,
     ['รหัส','ชื่อ-สกุล','เงินเดือน','SSF พนักงาน','SSF นายจ้าง','รวมนำส่ง'],
     payrollData.map(p=>[p.empId,p.name,p.salary,p.ssf,p.ssf,p.ssf*2]))
 }
 function exportCostCSV(){
   buildPayroll()
-  exportCSV('cost_มิถุนายน_2568.csv',
+  const {monthFull:_m,beYear:_y}=nowBKK(); exportCSV(`cost_${_m}_${_y}.csv`,
     ['รหัส','ชื่อ-สกุล','แผนก','เงินเดือน','OT','เบี้ยเลี้ยง','SSF นายจ้าง','ต้นทุนรวม'],
     payrollData.map(p=>[p.empId,p.name,p.dept,p.salary,p.otPay,p.allowance,p.ssf,p.gross+p.ssf]))
 }
@@ -1049,7 +1137,7 @@ function exportBankCSV(){
   buildPayroll()
   exportCSV('bank_transfer.csv',
     ['รหัส','ชื่อ-สกุล','ธนาคาร','เลขบัญชี','จำนวนเงิน','สกุลเงิน','หมายเหตุ'],
-    payrollData.map(p=>[p.empId,p.name,p.bank,p.acc,p.net,'THB','เงินเดือน มิถุนายน 2568']))
+    payrollData.map(p=>[p.empId,p.name,p.bank,p.acc,p.net,'THB',`เงินเดือน ${nowBKK().monthFull} ${nowBKK().beYear}`]))
 }
 
 // ==================== REPORTS ====================
@@ -1237,6 +1325,7 @@ function showToast(msg,success=true){
 
 // ==================== INIT ====================
 document.addEventListener('DOMContentLoaded',()=>{
+  updateSidebarPeriod();
   renderDashboard();
   // Set default OT date
   const today=todayTHP();
